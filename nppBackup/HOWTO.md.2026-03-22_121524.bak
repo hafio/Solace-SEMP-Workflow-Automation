@@ -219,10 +219,10 @@ semp-workflow list-modules --output all-modules.md
 (Only available when running from a `.zip` bundle)
 
 ```bash
-python semp-workflow.zip init --output-dir templates
+python semp-workflow.zip init --output-dir workflow-templates
 
 # Overwrite existing files
-python semp-workflow.zip init --output-dir templates --force
+python semp-workflow.zip init --output-dir workflow-templates --force
 ```
 
 ---

@@ -68,7 +68,7 @@ python semp-workflow.zip init --output-dir templates
 ```
 
 - **`config.yaml`**：定義 SEMP 連線、全域變數（`global_vars`）及要執行的工作流程清單
-- **`templates/`**：每個 YAML 檔包含一或多個具名範本，每個範本定義輸入變數與動作序列
+- **`workflow-templates/`**：每個 YAML 檔包含一或多個具名範本，每個範本定義輸入變數與動作序列
 
 ---
 
@@ -218,10 +218,10 @@ semp-workflow list-modules --output all-modules.md
 （僅在使用 `.zip` 打包檔時可用）
 
 ```bash
-python semp-workflow.zip init --output-dir templates
+python semp-workflow.zip init --output-dir workflow-templates
 
 # 強制覆蓋已存在的檔案
-python semp-workflow.zip init --output-dir templates --force
+python semp-workflow.zip init --output-dir workflow-templates --force
 ```
 
 ---

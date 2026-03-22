@@ -55,7 +55,7 @@ python semp-workflow.zip --help
 
 On first use, export the bundled templates to a local directory for customisation:
 ```bash
-python semp-workflow.zip init --output-dir templates
+python semp-workflow.zip init --output-dir workflow-templates
 ```
 
 ---
@@ -65,11 +65,13 @@ python semp-workflow.zip init --output-dir templates
 ```
 project-dir/
 ├── config.yaml               # Main config (connection + workflow list)
-└── templates/                # Template directory
+└── workflow-templates/       # Template directory
+    ├── sap-inbound.yaml      # SAP inbound workflow templates
+    └── sap-outbound.yaml     # SAP outbound workflow templates
 ```
 
 - **`config.yaml`**: defines the SEMP connection, shared `global_vars`, and the list of workflows to execute
-- **`templates/`**: each YAML file holds one or more named templates, each defining input variables and an action sequence
+- **`workflow-templates/`**: each YAML file holds one or more named templates, each defining input variables and an action sequence
 
 ---
 
@@ -219,10 +221,10 @@ semp-workflow list-modules --output all-modules.md
 (Only available when running from a `.zip` bundle)
 
 ```bash
-python semp-workflow.zip init --output-dir templates
+python semp-workflow.zip init --output-dir workflow-templates
 
 # Overwrite existing files
-python semp-workflow.zip init --output-dir templates --force
+python semp-workflow.zip init --output-dir workflow-templates --force
 ```
 
 ---

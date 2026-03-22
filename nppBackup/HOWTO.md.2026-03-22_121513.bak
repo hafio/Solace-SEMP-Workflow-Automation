@@ -69,7 +69,7 @@ project-dir/
 ```
 
 - **`config.yaml`**: defines the SEMP connection, shared `global_vars`, and the list of workflows to execute
-- **`templates/`**: each YAML file holds one or more named templates, each defining input variables and an action sequence
+- **`workflow-templates/`**: each YAML file holds one or more named templates, each defining input variables and an action sequence
 
 ---
 
@@ -219,10 +219,10 @@ semp-workflow list-modules --output all-modules.md
 (Only available when running from a `.zip` bundle)
 
 ```bash
-python semp-workflow.zip init --output-dir templates
+python semp-workflow.zip init --output-dir workflow-templates
 
 # Overwrite existing files
-python semp-workflow.zip init --output-dir templates --force
+python semp-workflow.zip init --output-dir workflow-templates --force
 ```
 
 ---
