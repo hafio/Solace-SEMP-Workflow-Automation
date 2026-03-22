@@ -14,9 +14,11 @@ env/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
-.nppBackup
+nppBackup
 examples
 semp-workflow.zip
 solace-swagger-spec.js
 semp-v2-swagger-config.yaml
 .claude
+HOWTO.md
+HOWTO-zh.md
