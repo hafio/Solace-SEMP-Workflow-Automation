@@ -1,3 +1,8 @@
 """SEMP Workflow Automation - Ansible-like playbooks for Solace SEMP."""
 
-__version__ = "0.2.0"
+from importlib.metadata import version, PackageNotFoundError
+
+try:
+    __version__ = version("semp-workflow")
+except PackageNotFoundError:
+    __version__ = "0.0.0-dev"

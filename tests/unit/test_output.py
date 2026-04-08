@@ -136,19 +136,18 @@ class TestPrintDryRunBanner:
 class TestPrintRecap:
     def test_success_prints_completed(self, capsys):
         wf = _make_wf_result([ResultStatus.OK])
-        output.print_recap([wf])
+        has_failures = output.print_recap([wf])
         assert "completed successfully" in capsys.readouterr().out
+        assert has_failures is False
 
-    def test_failure_exits_1(self):
+    def test_failure_returns_true(self, capsys):
         wf = _make_wf_result([ResultStatus.FAILED])
-        with pytest.raises(SystemExit) as exc_info:
-            output.print_recap([wf])
-        assert exc_info.value.code == 1
+        has_failures = output.print_recap([wf])
+        assert has_failures is True
 
     def test_failure_prints_some_tasks_failed(self, capsys):
         wf = _make_wf_result([ResultStatus.FAILED])
-        with pytest.raises(SystemExit):
-            output.print_recap([wf])
+        output.print_recap([wf])
         assert "failed" in capsys.readouterr().out
 
     def test_counts_in_output(self, capsys):
@@ -166,10 +165,10 @@ class TestPrintRecap:
         assert "Workflow 1" in out
         assert "Workflow 2" in out
 
-    def test_empty_results_no_exit(self, capsys):
-        output.print_recap([])
-        # Should not raise SystemExit
+    def test_empty_results_returns_false(self, capsys):
+        has_failures = output.print_recap([])
         assert "completed successfully" in capsys.readouterr().out
+        assert has_failures is False
 
 
 # ---------------------------------------------------------------------------

@@ -181,7 +181,7 @@ def init_cmd(output_dir: str, force: bool) -> None:
     if bundled is None:
         print_error(
             "No bundled templates found. "
-            "This command only works when running from a .pyz built with 'scripts/build_pyz.py'."
+            "This command only works when running from a .pyz built with 'scripts/build.py'."
         )
         sys.exit(2)
 

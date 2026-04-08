@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import logging
-from urllib.parse import quote
-
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 from ..exceptions import SEMPError
+from .helpers import enc as _enc_helper
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +64,7 @@ class SempClient:
     @staticmethod
     def _enc(value: str) -> str:
         """URL-encode a path segment (handles /, #, *, > etc.)."""
-        return quote(str(value), safe="")
+        return _enc_helper(value)
 
     def _request(
         self, method: str, path: str, payload: dict | None = None
@@ -95,7 +94,13 @@ class SempClient:
         except requests.RequestException as e:
             raise SEMPError(f"Request failed: {e}", status_code=0) from e
 
-        body = resp.json() if resp.text else {}
+        try:
+            body = resp.json() if resp.text else {}
+        except (ValueError, requests.exceptions.JSONDecodeError):
+            raise SEMPError(
+                f"Invalid JSON response from broker: {resp.text[:200]}",
+                status_code=resp.status_code,
+            )
         meta = body.get("meta", {})
         response_code = meta.get("responseCode", resp.status_code)
 

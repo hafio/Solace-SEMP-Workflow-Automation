@@ -6,7 +6,7 @@ The test suite covers 100% of the source code in `src/semp_workflow/`. It is spl
 
 | Tier | Location | Requires broker? | Count |
 |---|---|---|---|
-| Unit | `tests/unit/` | No | 364 tests |
+| Unit | `tests/unit/` | No | 365 tests |
 | Integration | `tests/integration/` | Yes (Solace SEMP v2) | ~50 tests |
 
 ---
@@ -541,7 +541,7 @@ Tests all CLI commands via `click.testing.CliRunner`. The `Engine` is mocked so 
 #### `list-modules` Command
 
 - Exits `0`
-- Output contains `"queue"` (and all 15 registered module names)
+- Output contains `"queue"` (and all 18 registered module names)
 - `--output <file>` writes a Markdown file and echoes the path
 
 #### `init` Command
@@ -814,11 +814,11 @@ workflows:
 |---|---|
 | `test_exits_zero` | exit code `0` |
 | `test_output_contains_queue_add` | `"queue.add"` in output |
-| `test_output_contains_all_module_types` | All 15 registered module names present in output |
+| `test_output_contains_all_module_types` | All 18 registered module names present in output |
 
-The 15 modules verified:
+The 18 modules verified:
 `acl_profile.add/delete`, `client_profile.add/delete`, `client_username.add/delete`,
-`queue.add/delete/update`, `q_sub.add/delete`, `rdp.add/delete`,
+`queue.add/delete/update`, `q_sub.add/delete`, `rdp.add/delete/update`,
 `rdp_rc.add/delete`, `rdp_qb.add/delete`
 
 #### `TestRunCommand`
@@ -847,7 +847,7 @@ All module `execute()` methods return an `ActionResult` with one of these status
 
 ## Module Registry
 
-All 15 actions registered and their SEMP resource paths:
+All 18 actions registered and their SEMP resource paths:
 
 | Module | HTTP method | SEMP path |
 |---|---|---|

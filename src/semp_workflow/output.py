@@ -72,8 +72,11 @@ def print_dry_run_banner() -> None:
           f"No changes will be made{Style.RESET_ALL}")
 
 
-def print_recap(results: list[WorkflowResult]) -> None:
-    """Print the final recap summary."""
+def print_recap(results: list[WorkflowResult]) -> bool:
+    """Print the final recap summary.
+
+    Returns True if there were failures, False otherwise.
+    """
     print(f"\n{Style.BRIGHT}{SEPARATOR}")
     print(f"RECAP{Style.RESET_ALL}")
     print(SEPARATOR)
@@ -125,9 +128,10 @@ def print_recap(results: list[WorkflowResult]) -> None:
 
     if total_failed:
         print(f"\n{Fore.RED}{Style.BRIGHT}Some tasks failed!{Style.RESET_ALL}")
-        sys.exit(1)
+        return True
     else:
         print(f"\n{Fore.GREEN}{Style.BRIGHT}All tasks completed successfully.{Style.RESET_ALL}")
+        return False
 
 
 def print_module_list(modules: list[str]) -> None:

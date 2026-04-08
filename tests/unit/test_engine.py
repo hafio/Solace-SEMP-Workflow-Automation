@@ -191,6 +191,29 @@ class TestRunWorkflow:
         payload = call_args[0][1]  # second positional arg to create()
         assert payload["queueName"] == "Q-HQ"
 
+    def test_provided_input_via_global_var_with_inputs_ref(self, tmp_path, mock_semp_client):
+        """3-level chain: provided value → global_var → {{ inputs.X }}.
+
+        Provided: queue_name = "{{ global_vars.q_name_tpl }}"
+        global_vars.q_name_tpl = "Q-{{ inputs.domain }}"
+        Pass 1 resolves global_var, pass 2 resolves {{ inputs.domain }}.
+        """
+        config = _make_config(tmp_path)
+        config.workflows = [
+            WorkflowEntry(
+                template="wf.simple",
+                inputs={
+                    "domain": "HQ",
+                    "queue_name": "{{ global_vars.q_name_tpl }}",
+                },
+            )
+        ]
+        engine = _make_engine(config, mock_semp_client)
+        results = engine.run()
+        assert not results[0].has_failures
+        payload = mock_semp_client.create.call_args[0][1]
+        assert payload["queueName"] == "Q-HQ"
+
     def test_circular_reference_produces_failed_result(self, tmp_path, mock_semp_client):
         config = _make_config(tmp_path, templates_content=CIRCULAR_TEMPLATE)
         config.workflows = [WorkflowEntry(template="wf.circ", inputs={})]

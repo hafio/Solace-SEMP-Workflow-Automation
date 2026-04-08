@@ -77,7 +77,8 @@ class Engine:
                     )
                     break
             except WorkflowError as e:
-                # Template/validation errors — record as a single failed task
+                # Template/validation/SEMP errors — record as a single failed task
+                # (TemplateError and other subclasses are caught here via inheritance)
                 wf_result = WorkflowResult(
                     workflow_name=workflow_entry.template,
                     template_ref=workflow_entry.template,
@@ -125,23 +126,35 @@ class Engine:
             "inputs": validated_inputs,
         }
 
-        # Second pass: re-render any input values that themselves contain
-        # Jinja2 expressions (e.g. defaults sourced from global_vars that
-        # reference other inputs like {{ inputs.domain }}).
-        # Iterate key-by-key so errors name the specific input that failed.
-        for key in list(validated_inputs):
-            try:
-                validated_inputs[key] = self.template_engine.render(
-                    validated_inputs[key], context
-                )
-            except TemplateError as e:
-                raise WorkflowError(
-                    f"Failed to resolve input '{key}': {e}"
-                ) from e
+        # Multi-pass rendering: resolve Jinja2 expressions in input values.
+        # A single pass isn't enough when a provided value references a
+        # global_var that itself contains {{ inputs.X }} — that creates a
+        # 3-level chain (provided → global_var → inputs) requiring multiple
+        # render iterations.  Loop until all values stabilise or the limit
+        # is reached (which indicates a circular reference).
+        _MAX_RENDER_PASSES = 2
+        for _pass in range(_MAX_RENDER_PASSES):
+            changed = False
+            for key in list(validated_inputs):
+                val = validated_inputs[key]
+                if not isinstance(val, str) or ("{{" not in val and "{%" not in val):
+                    continue
+                try:
+                    new_val = self.template_engine.render(val, context)
+                except TemplateError as e:
+                    raise WorkflowError(
+                        f"Failed to resolve input '{key}': {e}"
+                    ) from e
+                if new_val != val:
+                    validated_inputs[key] = new_val
+                    changed = True
+            if not changed:
+                break
 
-        # Detect unresolved Jinja2 expressions after the second pass — a sign
-        # of a circular reference (e.g. a defaults to {{ inputs.b }}, b defaults
-        # to {{ inputs.a }}) or a typo referencing a non-existent input.
+        # Detect unresolved Jinja2 expressions after all passes — a sign
+        # of a circular reference (e.g. a defaults to {{ inputs.b }}, b
+        # defaults to {{ inputs.a }}) or a typo referencing a non-existent
+        # input.
         for key, val in validated_inputs.items():
             if isinstance(val, str) and ("{{" in val or "{%" in val):
                 raise WorkflowError(
