@@ -6,7 +6,7 @@ The test suite covers 100% of the source code in `src/semp_workflow/`. It is spl
 
 | Tier | Location | Requires broker? | Count |
 |---|---|---|---|
-| Unit | `tests/unit/` | No | 365 tests |
+| Unit | `tests/unit/` | No | 417 tests |
 | Integration | `tests/integration/` | Yes (Solace SEMP v2) | ~50 tests |
 
 ---
@@ -85,8 +85,10 @@ tests/
 │       ├── test_rdp_rc.py               # RdpRestConsumerAdd, RdpRestConsumerDelete
 │       ├── test_rdp_qb.py               # QueueBindingAdd, QueueBindingDelete
 │       ├── test_acl_profile.py          # AclProfileAdd, AclProfileDelete
-│       ├── test_client_profile.py       # ClientProfileAdd, ClientProfileDelete
-│       └── test_client_username.py      # ClientUsernameAdd, ClientUsernameDelete
+│       ├── test_acl_pub_exc.py          # AclPublishExceptionAdd, AclPublishExceptionDelete
+│       ├── test_acl_sub_exc.py          # AclSubscribeExceptionAdd, AclSubscribeExceptionDelete
+│       ├── test_client_profile.py       # ClientProfileAdd, ClientProfileDelete, ClientProfileUpdate
+│       └── test_client_username.py      # ClientUsernameAdd, ClientUsernameDelete, ClientUsernameUpdate
 └── integration/
     ├── conftest.py                      # SempClient fixture, cleanup_queues/rdps helpers, .env loader
     ├── fixtures/
@@ -541,7 +543,7 @@ Tests all CLI commands via `click.testing.CliRunner`. The `Engine` is mocked so 
 #### `list-modules` Command
 
 - Exits `0`
-- Output contains `"queue"` (and all 18 registered module names)
+- Output contains `"queue"` (and all 24 registered module names)
 - `--output <file>` writes a Markdown file and echoes the path
 
 #### `init` Command
@@ -814,10 +816,11 @@ workflows:
 |---|---|
 | `test_exits_zero` | exit code `0` |
 | `test_output_contains_queue_add` | `"queue.add"` in output |
-| `test_output_contains_all_module_types` | All 18 registered module names present in output |
+| `test_output_contains_all_module_types` | All 24 registered module names present in output |
 
-The 18 modules verified:
-`acl_profile.add/delete`, `client_profile.add/delete`, `client_username.add/delete`,
+The 24 modules verified:
+`acl_profile.add/delete`, `acl_publish_exception.add/delete`, `acl_subscribe_exception.add/delete`,
+`client_profile.add/delete/update`, `client_username.add/delete/update`,
 `queue.add/delete/update`, `q_sub.add/delete`, `rdp.add/delete/update`,
 `rdp_rc.add/delete`, `rdp_qb.add/delete`
 
@@ -847,7 +850,7 @@ All module `execute()` methods return an `ActionResult` with one of these status
 
 ## Module Registry
 
-All 18 actions registered and their SEMP resource paths:
+All 24 actions registered and their SEMP resource paths:
 
 | Module | HTTP method | SEMP path |
 |---|---|---|
@@ -865,7 +868,13 @@ All 18 actions registered and their SEMP resource paths:
 | `rdp_qb.delete` | `DELETE` | `restDeliveryPoints/<rdp>/queueBindings/<queue>` |
 | `acl_profile.add` | `POST` | `aclProfiles` |
 | `acl_profile.delete` | `DELETE` | `aclProfiles/<name>` |
+| `acl_publish_exception.add` | `POST` | `aclProfiles/<name>/publishTopicExceptions` |
+| `acl_publish_exception.delete` | `DELETE` | `aclProfiles/<name>/publishTopicExceptions/<syntax>,<topic>` |
+| `acl_subscribe_exception.add` | `POST` | `aclProfiles/<name>/subscribeTopicExceptions` |
+| `acl_subscribe_exception.delete` | `DELETE` | `aclProfiles/<name>/subscribeTopicExceptions/<syntax>,<topic>` |
 | `client_profile.add` | `POST` | `clientProfiles` |
 | `client_profile.delete` | `DELETE` | `clientProfiles/<name>` |
+| `client_profile.update` | `PATCH` | `clientProfiles/<name>` |
 | `client_username.add` | `POST` | `clientUsernames` |
 | `client_username.delete` | `DELETE` | `clientUsernames/<name>` |
+| `client_username.update` | `PATCH` | `clientUsernames/<name>` |

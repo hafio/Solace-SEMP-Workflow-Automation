@@ -21,7 +21,7 @@ Define reusable, parameterised workflows in YAML and run them against your broke
 2. You write **template files** (`.yaml`) that describe what actions to perform (create queue, add subscription, etc.)
 3. You run the tool — it connects to the broker, checks current state, and only makes the changes needed
 
-All 18 built-in modules are idempotent: if a resource already exists, the action is skipped. If it doesn't exist, it's created. Re-running is always safe.
+All 24 built-in modules are idempotent: if a resource already exists, the action is skipped. If it doesn't exist, it's created. Re-running is always safe.
 
 ---
 

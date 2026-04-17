@@ -1,4 +1,4 @@
-"""Client Profile module - client_profile.add, client_profile.delete."""
+"""Client Profile module - client_profile.add, client_profile.delete, client_profile.update."""
 
 from __future__ import annotations
 
@@ -17,6 +17,7 @@ BOOL_FIELDS = {
     "allowGuaranteedMsgReceiveEnabled",
     "allowTransactedSessionsEnabled",
     "allowBridgeConnectionsEnabled",
+    "compressionEnabled",
 }
 
 INT_FIELDS = {
@@ -46,6 +47,7 @@ class ClientProfileAdd(BaseModule):
         "allowGuaranteedMsgReceiveEnabled":      {"type": "boolean", "required": False, "description": "Allow clients to receive guaranteed messages"},
         "allowTransactedSessionsEnabled":        {"type": "boolean", "required": False, "description": "Allow clients to use transacted sessions"},
         "allowBridgeConnectionsEnabled":         {"type": "boolean", "required": False, "description": "Allow clients to use bridge connections"},
+        "compressionEnabled":                    {"type": "boolean", "required": False, "description": "Enable message compression for clients using this profile"},
         "maxConnectionCountPerClientUsername":   {"type": "integer", "required": False, "description": "Maximum connections per client username (0 = unlimited)"},
         "maxEgressFlowCount":                    {"type": "integer", "required": False, "description": "Maximum number of egress flows per client"},
         "maxIngressFlowCount":                   {"type": "integer", "required": False, "description": "Maximum number of ingress flows per client"},
@@ -121,7 +123,59 @@ class ClientProfileDelete(BaseModule):
             )
 
 
+class ClientProfileUpdate(BaseModule):
+    description = "Update attributes of an existing client profile. Fails if the profile does not exist."
+    params = {
+        "clientProfileName":                    {"type": "string",  "required": True,  "description": "Name of the client profile to update"},
+        "allowGuaranteedMsgSendEnabled":         {"type": "boolean", "required": False, "description": "Allow clients to send guaranteed messages"},
+        "allowGuaranteedMsgReceiveEnabled":      {"type": "boolean", "required": False, "description": "Allow clients to receive guaranteed messages"},
+        "allowTransactedSessionsEnabled":        {"type": "boolean", "required": False, "description": "Allow clients to use transacted sessions"},
+        "allowBridgeConnectionsEnabled":         {"type": "boolean", "required": False, "description": "Allow clients to use bridge connections"},
+        "compressionEnabled":                    {"type": "boolean", "required": False, "description": "Enable message compression for clients using this profile"},
+        "maxConnectionCountPerClientUsername":   {"type": "integer", "required": False, "description": "Maximum connections per client username (0 = unlimited)"},
+        "maxEgressFlowCount":                    {"type": "integer", "required": False, "description": "Maximum number of egress flows per client"},
+        "maxIngressFlowCount":                   {"type": "integer", "required": False, "description": "Maximum number of ingress flows per client"},
+        "maxSubscriptionCount":                  {"type": "integer", "required": False, "description": "Maximum number of subscriptions per client"},
+    }
+
+    def execute(self, client: SempClient, args: dict, dry_run: bool = False) -> ActionResult:
+        name = args.get("clientProfileName", "")
+        if not name:
+            return ActionResult(ResultStatus.FAILED, "Missing required arg: clientProfileName")
+
+        if err := check_name_length("clientProfileName", name):
+            return ActionResult(ResultStatus.FAILED, err)
+
+        path = f"clientProfiles/{enc(name)}"
+
+        try:
+            exists, _ = client.exists(path)
+        except SEMPError as e:
+            return ActionResult(ResultStatus.FAILED, f"Error checking client profile: {e}")
+
+        if not exists:
+            return ActionResult(ResultStatus.FAILED, f"Client profile '{name}' does not exist")
+
+        payload = _build_profile_payload(args)
+        payload.pop("clientProfileName", None)
+
+        if not payload:
+            return ActionResult(ResultStatus.SKIPPED, "No fields to update")
+
+        if dry_run:
+            return ActionResult(ResultStatus.DRYRUN, f"Would update client profile '{name}'")
+
+        try:
+            client.update(path, payload)
+            return ActionResult(ResultStatus.OK, f"Client profile '{name}' updated")
+        except SEMPError as e:
+            return ActionResult(
+                ResultStatus.FAILED, f"Failed to update client profile '{name}': {e}"
+            )
+
+
 MODULES = {
     "client_profile.add": ClientProfileAdd,
     "client_profile.delete": ClientProfileDelete,
+    "client_profile.update": ClientProfileUpdate,
 }

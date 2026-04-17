@@ -6,6 +6,8 @@ Result states: `changed` (action ran), `skipped` (already in desired state), `dr
 ## Contents
 
 - [acl_profile](#acl-profile)
+- [acl_publish_exception](#acl-publish-exception)
+- [acl_subscribe_exception](#acl-subscribe-exception)
 - [client_profile](#client-profile)
 - [client_username](#client-username)
 - [q_sub](#q-sub)
@@ -39,6 +41,54 @@ Delete an ACL profile from the message VPN. Skipped if the profile does not exis
 
 ---
 
+## acl_publish_exception
+
+### `acl_publish_exception.add`
+
+Add a publish topic exception to an ACL profile. Skipped if the exception already exists.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `aclProfileName` | string | Yes | — | Name of the ACL profile |
+| `publishTopicException` | string | Yes | — | The topic for the exception (may include wildcards) |
+| `publishTopicExceptionSyntax` | string | No | `smf` | Syntax of the topic (`smf`, `mqtt`) |
+
+### `acl_publish_exception.delete`
+
+Remove a publish topic exception from an ACL profile. Skipped if the exception does not exist.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `aclProfileName` | string | Yes | — | Name of the ACL profile |
+| `publishTopicException` | string | Yes | — | The topic exception to remove |
+| `publishTopicExceptionSyntax` | string | No | `smf` | Syntax of the topic (`smf`, `mqtt`) |
+
+---
+
+## acl_subscribe_exception
+
+### `acl_subscribe_exception.add`
+
+Add a subscribe topic exception to an ACL profile. Skipped if the exception already exists.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `aclProfileName` | string | Yes | — | Name of the ACL profile |
+| `subscribeTopicException` | string | Yes | — | The topic for the exception (may include wildcards) |
+| `subscribeTopicExceptionSyntax` | string | No | `smf` | Syntax of the topic (`smf`, `mqtt`) |
+
+### `acl_subscribe_exception.delete`
+
+Remove a subscribe topic exception from an ACL profile. Skipped if the exception does not exist.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `aclProfileName` | string | Yes | — | Name of the ACL profile |
+| `subscribeTopicException` | string | Yes | — | The topic exception to remove |
+| `subscribeTopicExceptionSyntax` | string | No | `smf` | Syntax of the topic (`smf`, `mqtt`) |
+
+---
+
 ## client_profile
 
 ### `client_profile.add`
@@ -52,6 +102,7 @@ Create a client profile on the message VPN. Skipped if the profile already exist
 | `allowGuaranteedMsgReceiveEnabled` | boolean | No | — | Allow clients to receive guaranteed messages |
 | `allowTransactedSessionsEnabled` | boolean | No | — | Allow clients to use transacted sessions |
 | `allowBridgeConnectionsEnabled` | boolean | No | — | Allow clients to use bridge connections |
+| `compressionEnabled` | boolean | No | — | Enable message compression for clients using this profile |
 | `maxConnectionCountPerClientUsername` | integer | No | — | Maximum connections per client username (0 = unlimited) |
 | `maxEgressFlowCount` | integer | No | — | Maximum number of egress flows per client |
 | `maxIngressFlowCount` | integer | No | — | Maximum number of ingress flows per client |
@@ -64,6 +115,23 @@ Delete a client profile from the message VPN. Skipped if the profile does not ex
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
 | `clientProfileName` | string | Yes | — | Name of the client profile to delete |
+
+### `client_profile.update`
+
+Update attributes of an existing client profile. Fails if the profile does not exist.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `clientProfileName` | string | Yes | — | Name of the client profile to update |
+| `allowGuaranteedMsgSendEnabled` | boolean | No | — | Allow clients to send guaranteed messages |
+| `allowGuaranteedMsgReceiveEnabled` | boolean | No | — | Allow clients to receive guaranteed messages |
+| `allowTransactedSessionsEnabled` | boolean | No | — | Allow clients to use transacted sessions |
+| `allowBridgeConnectionsEnabled` | boolean | No | — | Allow clients to use bridge connections |
+| `compressionEnabled` | boolean | No | — | Enable message compression for clients using this profile |
+| `maxConnectionCountPerClientUsername` | integer | No | — | Maximum connections per client username (0 = unlimited) |
+| `maxEgressFlowCount` | integer | No | — | Maximum number of egress flows per client |
+| `maxIngressFlowCount` | integer | No | — | Maximum number of ingress flows per client |
+| `maxSubscriptionCount` | integer | No | — | Maximum number of subscriptions per client |
 
 ---
 
@@ -88,6 +156,18 @@ Delete a client username from the message VPN. Skipped if the username does not 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
 | `clientUsername` | string | Yes | — | The client username to delete |
+
+### `client_username.update`
+
+Update attributes of an existing client username. Fails if the username does not exist.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `clientUsername` | string | Yes | — | The client username to update |
+| `clientProfileName` | string | No | — | Client profile to assign |
+| `aclProfileName` | string | No | — | ACL profile to assign |
+| `password` | string | No | — | Password for the client username |
+| `enabled` | boolean | No | — | Enable or disable the client username |
 
 ---
 
