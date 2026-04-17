@@ -54,6 +54,4 @@ For full technical details — configuration reference, template authoring, modu
 
 | Document | Contents |
 |---|---|
-| [docs/HOWTO.md](docs/HOWTO.md) | Complete technical guide (English) |
-| [docs/HOWTO-zh.md](docs/HOWTO-zh.md) | Complete technical guide (Chinese) |
 | [docs/all-modules.md](docs/all-modules.md) | Auto-generated module parameter reference |
