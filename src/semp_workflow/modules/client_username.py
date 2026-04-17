@@ -1,4 +1,4 @@
-"""Client Username module - client_username.add, client_username.delete."""
+"""Client Username module - client_username.add, client_username.delete, client_username.update."""
 
 from __future__ import annotations
 
@@ -107,7 +107,54 @@ class ClientUsernameDelete(BaseModule):
             )
 
 
+class ClientUsernameUpdate(BaseModule):
+    description = "Update attributes of an existing client username. Fails if the username does not exist."
+    params = {
+        "clientUsername":    {"type": "string",  "required": True,  "description": "The client username to update"},
+        "clientProfileName": {"type": "string",  "required": False, "description": "Client profile to assign"},
+        "aclProfileName":    {"type": "string",  "required": False, "description": "ACL profile to assign"},
+        "password":          {"type": "string",  "required": False, "description": "Password for the client username"},
+        "enabled":           {"type": "boolean", "required": False, "description": "Enable or disable the client username"},
+    }
+
+    def execute(self, client: SempClient, args: dict, dry_run: bool = False) -> ActionResult:
+        username = args.get("clientUsername", "")
+        if not username:
+            return ActionResult(ResultStatus.FAILED, "Missing required arg: clientUsername")
+
+        if err := check_name_length("clientUsername", username):
+            return ActionResult(ResultStatus.FAILED, err)
+
+        path = f"clientUsernames/{enc(username)}"
+
+        try:
+            exists, _ = client.exists(path)
+        except SEMPError as e:
+            return ActionResult(ResultStatus.FAILED, f"Error checking client username: {e}")
+
+        if not exists:
+            return ActionResult(ResultStatus.FAILED, f"Client username '{username}' does not exist")
+
+        payload = _build_username_payload(args)
+        payload.pop("clientUsername", None)
+
+        if not payload:
+            return ActionResult(ResultStatus.SKIPPED, "No fields to update")
+
+        if dry_run:
+            return ActionResult(ResultStatus.DRYRUN, f"Would update client username '{username}'")
+
+        try:
+            client.update(path, payload)
+            return ActionResult(ResultStatus.OK, f"Client username '{username}' updated")
+        except SEMPError as e:
+            return ActionResult(
+                ResultStatus.FAILED, f"Failed to update client username '{username}': {e}"
+            )
+
+
 MODULES = {
     "client_username.add": ClientUsernameAdd,
     "client_username.delete": ClientUsernameDelete,
+    "client_username.update": ClientUsernameUpdate,
 }
