@@ -1,0 +1,1 @@
+{"nodes": [{"id": "readme", "label": "SEMP Workflow Automation README", "file_type": "document", "source_file": "README.md"}, {"id": "solace_broker", "label": "Solace Broker", "file_type": "concept", "source_file": "README.md"}, {"id": "semp_v2_api", "label": "SEMP v2 REST API", "file_type": "concept", "source_file": "README.md"}], "edges": [], "hyperedges": []}

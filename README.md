@@ -2,7 +2,7 @@
 
 Ansible-style workflow automation for [Solace](https://solace.com/) brokers via the SEMP v2 REST API.
 
-Define reusable, parameterised workflows in YAML and run them against your broker — every action is idempotent, so re-running the same workflow is always safe.
+Define reusable, parameterised workflows in YAML and run them against your broker -- every action is idempotent, so re-running the same workflow is always safe.
 
 ---
 
@@ -19,7 +19,7 @@ Define reusable, parameterised workflows in YAML and run them against your broke
 
 1. You write a **config file** (`config.yaml`) with your broker connection and a list of workflows
 2. You write **template files** (`.yaml`) that describe what actions to perform (create queue, add subscription, etc.)
-3. You run the tool — it connects to the broker, checks current state, and only makes the changes needed
+3. You run the tool -- it connects to the broker, checks current state, and only makes the changes needed
 
 All 24 built-in modules are idempotent: if a resource already exists, the action is skipped. If it doesn't exist, it's created. Re-running is always safe.
 
@@ -27,31 +27,45 @@ All 24 built-in modules are idempotent: if a resource already exists, the action
 
 ## Quick Start
 
-Requires Python 3.10+. The `.zip` bundle is self-contained — no `pip install` needed.
+A single self-contained binary -- the workflow templates are embedded, so there are no runtime dependencies.
+
+Build it (requires Go 1.24+):
+
+```bash
+./scripts/dev.sh build        # -> dist/semp-workflow   (Windows: .\scripts\dev.ps1 build)
+```
+
+Then run it:
 
 ```bash
 # See available commands
-python semp-workflow.zip --help
+semp-workflow --help
 
 # Export bundled templates for customisation
-python semp-workflow.zip init --output-dir templates
+semp-workflow init --output-dir templates
 
 # Validate config without connecting to the broker
-python semp-workflow.zip validate --config config.yaml
+semp-workflow validate --config config.yaml
 
 # Preview what would change
-python semp-workflow.zip run --config config.yaml --dry-run
+semp-workflow run --config config.yaml --dry-run
 
 # Execute
-python semp-workflow.zip run --config config.yaml
+semp-workflow run --config config.yaml
 ```
 
 ---
 
 ## Documentation
 
-For full technical details — configuration reference, template authoring, module parameters, examples, and troubleshooting — see the **[How-To Guide](docs/HOWTO.md)**.
+For full technical details -- configuration reference, template authoring, module parameters, examples, and troubleshooting -- see the **[How-To Guide](docs/HOWTO.md)**.
 
 | Document | Contents |
 |---|---|
+| [docs/HOWTO.md](docs/HOWTO.md) | Full technical guide: configuration, templates, modules, and troubleshooting |
+| [docs/HOWTO-zh.md](docs/HOWTO-zh.md) | Chinese translation of the How-To guide |
 | [docs/all-modules.md](docs/all-modules.md) | Auto-generated module parameter reference |
+| [docs/TESTS.md](docs/TESTS.md) | Test suite overview, layout, and module registry |
+| [docs/template-sap-inbound.md](docs/template-sap-inbound.md) | `sap-inbound` template: inputs, action sequence, examples |
+| [docs/template-sap-outbound.md](docs/template-sap-outbound.md) | `sap-outbound` template: inputs, action sequence, examples |
+| [docs/release.md](docs/release.md) | Release process and versioning scheme |

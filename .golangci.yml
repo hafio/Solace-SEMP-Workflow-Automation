@@ -1,0 +1,34 @@
+# golangci-lint configuration for the Go implementation.
+# Run: golangci-lint run ./...   (from the repo root)
+run:
+  timeout: 5m
+
+linters:
+  enable:
+    - govet
+    - staticcheck
+    - errcheck
+    - ineffassign
+    - unused
+    - misspell
+    - revive
+
+issues:
+  # Do not hide multiple reports of the same issue.
+  max-same-issues: 0
+  max-issues-per-linter: 0
+  exclude-rules:
+    # Error message strings are deliberately capitalized / end with punctuation
+    # to match the required user-facing text exactly. ST1005 flags this; it is
+    # intentional here.
+    - linters: [staticcheck]
+      text: "ST1005:"
+    # Test files exercise error paths where checking every return is noise.
+    - path: _test\.go
+      linters: [errcheck]
+
+linters-settings:
+  revive:
+    rules:
+      - name: exported
+        disabled: true # doc comments follow Go style but we don't enforce the linter's phrasing

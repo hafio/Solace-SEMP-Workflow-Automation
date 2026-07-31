@@ -15,11 +15,20 @@ env/
 .mypy_cache/
 .ruff_cache/
 nppBackup
-examples
+*.bak
 semp-workflow.zip
 solace-swagger-spec.js
 semp-v2-swagger-config.yaml
 .claude
-HOWTO.md
-HOWTO-zh.md
-claude.md
+python/*
+
+# Go implementation
+coverage.out
+coverage.html
+scripts/logs/
+# Local broker connection for the `integration` dev task -- never commit (holds
+# the SEMP password). The tracked template is scripts/local.env.example.
+scripts/local.env
+# Customer-named sample configs (real site/topic taxonomy) -- kept local, not a
+# code dependency. The sanitized, committable samples live in examples/.
+other-examples/

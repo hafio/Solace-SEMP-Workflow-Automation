@@ -1,0 +1,13 @@
+build/
+__pycache__/
+*.pyc
+.pytest_cache/
+.git/
+**/nppBackup/
+*.bak
+.coverage
+semp-v2-swagger-config.yaml
+solace-swagger-spec.js
+examples/
+other-examples/
+python/*

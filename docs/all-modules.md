@@ -180,7 +180,7 @@ Add a topic subscription to a queue. Skipped if the subscription already exists.
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
 | `queueName` | string | Yes | — | Name of the queue to subscribe |
-| `subscriptionTopic` | string | Yes | — | Topic string to subscribe to (wildcards supported, e.g. FCM/SAP/>) |
+| `subscriptionTopic` | string | Yes | — | Topic string to subscribe to (wildcards supported, e.g. SITEA/SAP/>) |
 
 ### `q_sub.delete`
 
