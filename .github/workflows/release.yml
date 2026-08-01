@@ -2,24 +2,32 @@ name: Release
 
 # Build and publish binaries when a maintainer publishes a GitHub Release.
 #
-# The maintainer creates the tag + Release by hand (UI or `gh release create`);
-# this workflow ONLY reacts to that publish -- it cross-compiles the 6 supported
-# targets, writes a SHA256 checksums file, and uploads them to THAT release. It
-# never creates a release itself.
+# This is the repository's sole CI workflow. The maintainer creates the tag +
+# Release by hand (UI or `gh release create`); this workflow ONLY reacts to that
+# publish -- it runs the full gate on the tagged source, cross-compiles the 6
+# supported targets, writes a SHA256 checksums file, and uploads them to THAT
+# release. It never creates a release itself.
 #
-# Single job, all-or-nothing: every target is built first, and nothing is
-# uploaded unless all six compiled (set -euo pipefail + a 6-binary assertion),
-# so a failed target never leaves a partial release. Uploads use the runner's
-# built-in `gh` CLI -- no third-party action -- keeping the supply-chain surface
-# to actions/checkout + actions/setup-go only.
+# Gated + all-or-nothing: three gate jobs run against the tagged source before
+# any binary is built or uploaded --
+#   * verify: `go mod tidy` check + `go vet` + `go test` with coverage
+#   * lint:   golangci-lint (pinned linter version)
+#   * vuln:   govulncheck (the project's `scan` -- there is no container image,
+#             so no image/trivy step; matches scripts/dev.sh, which has neither)
+# The `release` job `needs` all three, so a failing test, vet, lint, or a known,
+# reachable vulnerability blocks the build and upload entirely. The release job
+# then builds all six targets before uploading anything (set -euo pipefail + a
+# 6-binary assertion), so a failed target never leaves a partial release.
+# Uploads use the runner's built-in `gh` CLI -- no third-party action -- keeping
+# the supply-chain surface to actions/checkout + actions/setup-go +
+# golangci-lint-action only.
 #
-# Shares the 6-target list and build flags with the `release` task in
-# scripts/dev.sh / scripts/dev.ps1 and the build matrix in go-ci.yml (keep all
-# three in lockstep). The Go toolchain tracks go.mod (go-version-file), so
-# release binaries build with the module's declared version. Normal push/PR CI
-# (vet, lint, test, cov, vuln, cross-compile smoke) lives in go-ci.yml and is
-# NOT duplicated here: that workflow uploads ephemeral per-run artifacts, while
-# this one attaches durable assets to the release.
+# Same commands/flags as scripts/dev.sh / scripts/dev.ps1 (local == CI): the
+# local equivalent of this workflow is `dev.sh full` (build vet test cov vuln)
+# followed by `dev.sh release`. The 6-target list and build flags are shared
+# with the dev scripts' `release` task -- keep both in lockstep. Every job
+# tracks the toolchain declared in go.mod (go-version-file), so the gate and the
+# release binaries use the module's declared Go version.
 
 on:
   release:
@@ -37,12 +45,109 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  # Clean logs + pure-Go static builds, matching go-ci.yml and the dev scripts.
+  # Clean logs + pure-Go static builds, matching the dev scripts.
   NO_COLOR: "1"
   CGO_ENABLED: "0"
 
 jobs:
+  # Gate: vet, module tidiness, and the full test suite with coverage, run
+  # against the tagged source. Same commands/flags as the dev scripts' vet, test,
+  # and cov tasks; any failure blocks the release via `needs` on the `release`
+  # job below.
+  verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read  # checkout only
+    steps:
+      - name: Check out the release tag
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@3041bf56c941b39c61721a86cd11f3bb1338122a # v5.2.0
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      - name: Verify modules are tidy
+        run: |
+          go mod tidy
+          git diff --exit-code go.mod go.sum
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test with coverage
+        # -count=1 disables the test cache so the tagged source is always
+        # re-tested in full, matching scripts/dev.sh.
+        run: go test -count=1 -covermode=atomic -coverprofile=coverage.out ./...
+
+      - name: Coverage total
+        run: |
+          go tool cover -func=coverage.out | tail -1
+          {
+            echo "### Release gate coverage"
+            echo '```'
+            go tool cover -func=coverage.out | tail -1
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # Gate: golangci-lint on the tagged source. Same action, pinned linter version,
+  # and v2 config schema as the dev scripts' lint task (.golangci.yml).
+  lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read  # checkout only
+    steps:
+      - name: Check out the release tag
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@3041bf56c941b39c61721a86cd11f3bb1338122a # v5.2.0
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
+        with:
+          # Pin the linter exactly (supply-chain); v2.12.2 supports Go 1.26.
+          # --no-color was removed in v2 -- color is off via the NO_COLOR env.
+          version: v2.12.2
+          args: ./...
+
+  # Gate: a release must not ship a binary with a known, reachable vulnerability.
+  # Same scanner and invocation as the dev scripts' `vuln` task; a finding fails
+  # this job and -- via `needs` on `release` below -- blocks build and upload.
+  vuln:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read  # checkout only; no write access needed to scan
+    steps:
+      - name: Check out the release tag
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@3041bf56c941b39c61721a86cd11f3bb1338122a # v5.2.0
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      - name: Install govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@latest
+
+      - name: Scan for known vulnerabilities
+        # Non-zero exit on any reachable vulnerability fails the job (and, via
+        # needs, the whole release). The vuln DB is fetched fresh each run.
+        run: govulncheck ./...
+
   release:
+    needs: [verify, lint, vuln]
     runs-on: ubuntu-latest
     permissions:
       contents: write  # attach binaries + checksums to the existing release
@@ -76,7 +181,7 @@ jobs:
           set -euo pipefail
           VERSION="$TAG"
           # Keep this list in lockstep with RELEASE_TARGETS in scripts/dev.sh /
-          # scripts/dev.ps1 and the build matrix in .github/workflows/go-ci.yml.
+          # scripts/dev.ps1.
           targets=(
             "linux/amd64" "linux/arm64"
             "darwin/amd64" "darwin/arm64"

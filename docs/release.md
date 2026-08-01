@@ -107,9 +107,13 @@ git push origin v0.4.0
 
 Create the tag and the GitHub Release -- do NOT attach binaries by hand.
 Publishing the release triggers
-[.github/workflows/release.yml](../.github/workflows/release.yml), which
-cross-compiles all six targets, writes a `SHA256SUMS` file, and uploads the
-seven assets to that release:
+[.github/workflows/release.yml](../.github/workflows/release.yml) -- the
+repository's sole CI workflow. It first runs the full gate on the tagged source
+(`go vet`, the test suite with coverage, `golangci-lint`, and a `govulncheck`
+scan), then cross-compiles all six targets, writes a `SHA256SUMS` file, and
+uploads the seven assets to that release. The publish is all-or-nothing: any
+gate failure -- a failing test, vet, or lint, or a known, reachable
+vulnerability in the tagged source -- blocks the build and upload entirely:
 
 ```bash
 git tag -a v0.4.0 -m "Release v0.4.0"
@@ -134,10 +138,9 @@ SEMP_WF_VERSION="0.4.0+20260520" ./scripts/dev.sh release   # Windows: .\scripts
 # -> dist/semp-workflow_{linux,darwin,windows}_{amd64,arm64}[.exe]   (6 binaries)
 ```
 
-For contrast, the `build` job in
-[.github/workflows/go-ci.yml](../.github/workflows/go-ci.yml) builds the same
-six targets on every push, but only as ephemeral per-run CI artifacts (not
-attached to any release).
+To reproduce the release gate locally before tagging, run `./scripts/dev.sh full`
+(build vet test cov vuln) and `./scripts/dev.sh lint` -- the same commands the
+workflow runs on the tagged source.
 
 ---
 

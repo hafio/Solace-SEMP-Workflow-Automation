@@ -37,7 +37,7 @@ SEMP Workflow Automation 是一套類似 Ansible Playbook 的命令列工具，�
 
 | 需求項目 | 版本要求 |
 |---|---|
-| Go | 1.23 以上（僅在從原始碼建置時需要；預先建置的二進位檔為獨立執行檔） |
+| Go | 1.26 以上（僅在從原始碼建置時需要；預先建置的二進位檔為獨立執行檔） |
 | Solace PubSub+ Broker | 支援 SEMP v2 API 的版本 |
 | 網路連線 | 可存取 Broker 的 SEMP 管理埠（預設 `8080` / `1943`） |
 
@@ -47,11 +47,25 @@ SEMP Workflow Automation 是一套類似 Ansible Playbook 的命令列工具，�
 
 `semp-workflow` 是單一獨立執行的二進位檔 —— Go 執行環境與所有相依套件皆已編譯進去，工作流程範本則透過 `//go:embed` 內嵌，因此執行時無需任何直譯器或套件安裝。
 
-從原始碼建置（Go 1.23 以上）：
+### 安裝預先建置的二進位檔（建議）
+
+每個 [GitHub 發行版本](https://github.com/hafio/Solace-SEMP-Workflow-Automation/releases) 都會為各支援平台附上一個二進位檔 —— `semp-workflow_{linux,darwin,windows}_{amd64,arm64}`（Windows 會多出 `.exe`）—— 以及一個 `SHA256SUMS` 檔案。下載對應你平台的檔案、驗證校驗碼，再放入 `PATH` 即可：
 
 ```bash
-cd go && ./scripts/dev.sh build      # Windows：.\scripts\dev.ps1 build
-# → 產生 go/dist/semp-workflow（Windows 為 semp-workflow.exe）
+base=https://github.com/hafio/Solace-SEMP-Workflow-Automation/releases/latest/download
+curl -LO "$base/semp-workflow_linux_amd64"     # 依你的 OS/arch 調整
+curl -LO "$base/SHA256SUMS"
+sha256sum --ignore-missing -c SHA256SUMS        # → semp-workflow_linux_amd64: OK
+install -m 0755 semp-workflow_linux_amd64 /usr/local/bin/semp-workflow
+```
+
+發行版二進位檔會以發行標籤作為版本號：執行 `semp-workflow --version` 會顯示例如 `semp-workflow, version v0.4.0`。
+
+### 從原始碼建置（Go 1.26 以上）
+
+```bash
+./scripts/dev.sh build      # 於儲存庫根目錄執行；Windows：.\scripts\dev.ps1 build
+# → 產生 dist/semp-workflow（Windows 為 semp-workflow.exe）
 ```
 
 或直接使用 Go 工具鏈建置／執行：

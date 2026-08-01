@@ -1,7 +1,7 @@
 {
   "README.md": {
-    "mtime": 1785521986.996972,
-    "ast_hash": "d5542e72696dd2edc4e69cd5a5a19c2d",
+    "mtime": 1785518571.4093056,
+    "ast_hash": "ac8af513c4b34f0aa4f819924133c79b",
     "semantic_hash": ""
   },
   "docs/TESTS.md": {
@@ -15,8 +15,13 @@
     "semantic_hash": ""
   },
   "docs/release.md": {
-    "mtime": 1785542730.8691986,
-    "ast_hash": "9d9924a0c9b5a9d31c36fae11e3b308a",
+    "mtime": 1785517675.8152912,
+    "ast_hash": "6ad3e7e9cf93b2a7d1d51d7409483ff7",
+    "semantic_hash": ""
+  },
+  ".github/workflows/go-ci.yml": {
+    "mtime": 1785519523.4666448,
+    "ast_hash": "8e407ed3519d69048d03e0a594d5d985",
     "semantic_hash": ""
   },
   "cmd/semp-workflow/main.go": {
@@ -250,13 +255,13 @@
     "semantic_hash": ""
   },
   "scripts/dev.ps1": {
-    "mtime": 1785542703.7691834,
-    "ast_hash": "0ff9366e49eedd2b8fbefd5054eb5d61",
+    "mtime": 1785519526.7094107,
+    "ast_hash": "5be6fdae571b00ba4e40da02f06578bc",
     "semantic_hash": ""
   },
   "scripts/dev.sh": {
-    "mtime": 1785542701.4682767,
-    "ast_hash": "6c66cb0c26ced981c434539053025b11",
+    "mtime": 1785519525.2622654,
+    "ast_hash": "958502822400b8a9f62e723d3af56f29",
     "semantic_hash": ""
   },
   "templates/embed.go": {
@@ -310,18 +315,18 @@
     "semantic_hash": ""
   },
   "docs/HOWTO-zh.md": {
-    "mtime": 1785522048.172398,
-    "ast_hash": "8b7c9b3c178d7fabae928b3339a8b7d1",
+    "mtime": 1785513569.3424098,
+    "ast_hash": "f48a8824018287f6ea9e2dee314df24c",
     "semantic_hash": ""
   },
   "docs/HOWTO.md": {
-    "mtime": 1785522018.1990921,
-    "ast_hash": "7d5d1aef4990249488f2600c8fe65fbe",
+    "mtime": 1785513569.336891,
+    "ast_hash": "62f7ee19f6d02346a117a86d24a97290",
     "semantic_hash": ""
   },
   ".github/workflows/release.yml": {
-    "mtime": 1785542678.3999095,
-    "ast_hash": "d14510cc230961ea32d4f8cd018b18ed",
+    "mtime": 1785517669.1956213,
+    "ast_hash": "b58c6879f2d140a0be6e7d43e8aac05a",
     "semantic_hash": ""
   }
 }

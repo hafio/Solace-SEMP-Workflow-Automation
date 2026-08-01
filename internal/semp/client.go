@@ -189,7 +189,7 @@ func (c *Client) TestConnection() bool {
 		return false
 	}
 	defer resp.Body.Close()
-	io.Copy(io.Discard, resp.Body)
+	_, _ = io.Copy(io.Discard, resp.Body)
 	return resp.StatusCode == 200
 }
 
@@ -225,7 +225,7 @@ func (t *retryTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 		if attempt >= t.maxRetries || !t.retryStatuses[resp.StatusCode] {
 			return resp, nil
 		}
-		io.Copy(io.Discard, resp.Body)
+		_, _ = io.Copy(io.Discard, resp.Body)
 		resp.Body.Close()
 		if d := backoffDelay(attempt, t.backoffFactor); d > 0 {
 			time.Sleep(d)

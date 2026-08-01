@@ -44,9 +44,9 @@ $CoverageHtml = Join-Path $GoRoot "coverage.html"
 $Version = if ($env:SEMP_WF_VERSION) { $env:SEMP_WF_VERSION } else { "0.0.0-dev" }
 
 # Cross-compile matrix for `release`: OS/ARCH pairs. CGO is disabled below, so
-# these build from any host with no C toolchain. Keep in sync with the build
-# job in .github\workflows\go-ci.yml and the target list in
-# .github\workflows\release.yml (which publishes these binaries on a release).
+# these build from any host with no C toolchain. Keep in sync with the target
+# list in .github\workflows\release.yml (which publishes these binaries on a
+# release).
 $ReleaseTargets = @(
     "linux/amd64", "linux/arm64",
     "darwin/amd64", "darwin/arm64",
@@ -170,7 +170,8 @@ function Task-Vet {
 function Task-Lint {
     Step "lint (golangci-lint)"
     if (-not (Have "golangci-lint")) { Warn "golangci-lint not installed; skipping"; return }
-    $code = Invoke-Logged "lint" $GoRoot "golangci-lint" @("run", "--no-color", "./...")
+    # golangci-lint v2 dropped --no-color; NO_COLOR=1 (set above) disables color.
+    $code = Invoke-Logged "lint" $GoRoot "golangci-lint" @("run", "./...")
     if ($code -ne 0) { Die "lint failed" }
     Ok "lint"
 }

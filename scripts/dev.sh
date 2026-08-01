@@ -31,9 +31,9 @@ COVERAGE_OUT="$GO_ROOT/coverage.out"
 COVERAGE_HTML="$GO_ROOT/coverage.html"
 
 # Cross-compile matrix for `release`: OS/ARCH pairs. CGO is disabled below, so
-# these build from any host with no C toolchain. Keep in sync with the build
-# job in .github/workflows/go-ci.yml and the target list in
-# .github/workflows/release.yml (which publishes these binaries on a release).
+# these build from any host with no C toolchain. Keep in sync with the target
+# list in .github/workflows/release.yml (which publishes these binaries on a
+# release).
 RELEASE_TARGETS=(
   "linux/amd64" "linux/arm64"
   "darwin/amd64" "darwin/arm64"
@@ -146,7 +146,8 @@ task_lint() {
     warn "golangci-lint not installed; skipping (install: https://golangci-lint.run)"
     return 0
   fi
-  run_logged lint "$GO_ROOT" golangci-lint run --no-color ./... || die "lint failed"
+  # golangci-lint v2 dropped --no-color; NO_COLOR=1 (exported above) disables color.
+  run_logged lint "$GO_ROOT" golangci-lint run ./... || die "lint failed"
   ok "lint"
 }
 

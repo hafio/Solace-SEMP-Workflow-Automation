@@ -37,7 +37,7 @@ SEMP Workflow Automation is an Ansible-like CLI tool for Solace PubSub+ message 
 
 | Requirement | Version |
 |---|---|
-| Go | 1.23 or higher (only needed to build from source; the prebuilt binary is self-contained) |
+| Go | 1.26 or higher (only needed to build from source; the prebuilt binary is self-contained) |
 | Solace PubSub+ Broker | Any version supporting SEMP v2 API |
 | Network | Access to the broker's SEMP management port (default `8080` / `943`) |
 
@@ -49,11 +49,26 @@ SEMP Workflow Automation is an Ansible-like CLI tool for Solace PubSub+ message 
 dependencies are compiled in, and the workflow templates are embedded via
 `//go:embed`, so no interpreter or package install is required to run it.
 
-Build from source (Go 1.23+):
+### Install a prebuilt binary (recommended)
+
+Every [GitHub release](https://github.com/hafio/Solace-SEMP-Workflow-Automation/releases) attaches a binary for each supported platform — `semp-workflow_{linux,darwin,windows}_{amd64,arm64}` (Windows adds `.exe`) — plus a `SHA256SUMS` file. Download the asset for your platform, verify its checksum, and put it on your `PATH`:
 
 ```bash
-cd go && ./scripts/dev.sh build      # Windows: .\scripts\dev.ps1 build
-# → produces go/dist/semp-workflow (semp-workflow.exe on Windows)
+base=https://github.com/hafio/Solace-SEMP-Workflow-Automation/releases/latest/download
+curl -LO "$base/semp-workflow_linux_amd64"     # adjust for your OS/arch
+curl -LO "$base/SHA256SUMS"
+sha256sum --ignore-missing -c SHA256SUMS        # → semp-workflow_linux_amd64: OK
+install -m 0755 semp-workflow_linux_amd64 /usr/local/bin/semp-workflow
+```
+
+A released binary reports the release tag as its version: running
+`semp-workflow --version` prints e.g. `semp-workflow, version v0.4.0`.
+
+### Build from source (Go 1.26+)
+
+```bash
+./scripts/dev.sh build      # from the repo root; Windows: .\scripts\dev.ps1 build
+# → produces dist/semp-workflow (semp-workflow.exe on Windows)
 ```
 
 Or build/run directly with the Go toolchain:

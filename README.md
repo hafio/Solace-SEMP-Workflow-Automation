@@ -29,7 +29,22 @@ All 24 built-in modules are idempotent: if a resource already exists, the action
 
 A single self-contained binary -- the workflow templates are embedded, so there are no runtime dependencies.
 
-Build it (requires Go 1.24+):
+### Install a prebuilt binary (recommended)
+
+Every [release](https://github.com/hafio/Solace-SEMP-Workflow-Automation/releases) attaches a binary for each supported platform -- `semp-workflow_{linux,darwin,windows}_{amd64,arm64}` (Windows adds `.exe`) -- plus a `SHA256SUMS` file. Download the asset for your platform, verify it, and put it on your `PATH`:
+
+```bash
+# Linux/macOS -- adjust the asset name for your OS/arch
+base=https://github.com/hafio/Solace-SEMP-Workflow-Automation/releases/latest/download
+curl -LO "$base/semp-workflow_linux_amd64"
+curl -LO "$base/SHA256SUMS"
+sha256sum --ignore-missing -c SHA256SUMS      # -> semp-workflow_linux_amd64: OK
+install -m 0755 semp-workflow_linux_amd64 /usr/local/bin/semp-workflow
+```
+
+On Windows, download `semp-workflow_windows_amd64.exe` and verify it against `SHA256SUMS`.
+
+### Build from source (requires Go 1.26+)
 
 ```bash
 ./scripts/dev.sh build        # -> dist/semp-workflow   (Windows: .\scripts\dev.ps1 build)
