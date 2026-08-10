@@ -174,11 +174,11 @@ func TestQueueUpdate(t *testing.T) {
 
 func TestSubscriptionAddPostsDirectly(t *testing.T) {
 	fc := &fakeClient{} // default Create succeeds; Exists not consulted on live path
-	res := exec(t, "q_sub.add", fc, map[string]any{"queueName": "Q", "subscriptionTopic": "SITEA/SAP/>"}, false)
+	res := exec(t, "q_sub.add", fc, map[string]any{"queueName": "Q", "subscriptionTopic": "SITEA/APP/>"}, false)
 	assert.Equal(t, models.StatusOK, res.Status)
 	assert.Equal(t, "queues/Q/subscriptions", fc.createPath)
 	assert.Empty(t, fc.existsCalls) // no pre-check on the live path
-	assert.Equal(t, "SITEA/SAP/>", fc.createBody["subscriptionTopic"])
+	assert.Equal(t, "SITEA/APP/>", fc.createBody["subscriptionTopic"])
 }
 
 func TestSubscriptionAddAlreadyExists(t *testing.T) {

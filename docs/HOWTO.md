@@ -51,14 +51,14 @@ dependencies are compiled in, and the workflow templates are embedded via
 
 ### Install a prebuilt binary (recommended)
 
-Every [GitHub release](https://github.com/hafio/Solace-SEMP-Workflow-Automation/releases) attaches a binary for each supported platform — `semp-workflow_{linux,darwin,windows}_{amd64,arm64}` (Windows adds `.exe`) — plus a `SHA256SUMS` file. Download the asset for your platform, verify its checksum, and put it on your `PATH`:
+Every [GitHub release](https://github.com/hafio/Solace-SEMP-Workflow-Automation/releases) attaches a binary for each supported platform — `semp-workflow-{linux,darwin,windows}-{amd64,arm64}` (Windows adds `.exe`) — plus a `SHA256SUMS.txt` file. Download the asset for your platform, verify its checksum, and put it on your `PATH`:
 
 ```bash
 base=https://github.com/hafio/Solace-SEMP-Workflow-Automation/releases/latest/download
-curl -LO "$base/semp-workflow_linux_amd64"     # adjust for your OS/arch
-curl -LO "$base/SHA256SUMS"
-sha256sum --ignore-missing -c SHA256SUMS        # → semp-workflow_linux_amd64: OK
-install -m 0755 semp-workflow_linux_amd64 /usr/local/bin/semp-workflow
+curl -LO "$base/semp-workflow-linux-amd64"     # adjust for your OS/arch
+curl -LO "$base/SHA256SUMS.txt"
+sha256sum --ignore-missing -c SHA256SUMS.txt    # → semp-workflow-linux-amd64: OK
+install -m 0755 semp-workflow-linux-amd64 /usr/local/bin/semp-workflow
 ```
 
 A released binary reports the release tag as its version: running
@@ -68,13 +68,23 @@ A released binary reports the release tag as its version: running
 
 ```bash
 ./scripts/dev.sh build      # from the repo root; Windows: .\scripts\dev.ps1 build
-# → produces dist/semp-workflow (semp-workflow.exe on Windows)
+# → produces dist/semp-workflow-<os>-<arch>[.exe] for the host (e.g. dist/semp-workflow-linux-amd64)
 ```
 
 Or build/run directly with the Go toolchain:
 
 ```bash
 go build ./cmd/semp-workflow          # or: go run ./cmd/semp-workflow
+```
+
+To inspect what drives the binary size, run the report-only `size` task. It
+builds a fresh binary and prints a breakdown by package/module via
+[go-size-analyzer](https://github.com/Zxilly/go-size-analyzer):
+
+```bash
+./scripts/dev.sh size       # Windows: .\scripts\dev.ps1 size
+# needs network on first run to fetch the tool (nothing is installed globally)
+# no-tool fallback: go tool nm -size -sort=size dist/semp-workflow-<os>-<arch>
 ```
 
 Then run it:
@@ -139,7 +149,7 @@ Global variables are available across all workflow inputs via `{{ global_vars.va
 
 ```yaml
 global_vars:
-  topic_prefix: "SITEA/SAP/AIF"
+  topic_prefix: "SITEA/APP/AIF"
   default_queue_owner: "svc-app-client"
   default_rc_remote_host: "my-backend.example.com"
 ```
@@ -152,7 +162,7 @@ Each workflow entry references a template and provides input values:
 
 ```yaml
 workflows:
-  - template: "sap-outbound.new-seq"    # format: filename.TemplateName
+  - template: "app-outbound.new-seq"    # format: filename.TemplateName
     inputs:
       domain: "CENTRAL"                       # required inputs
       system: "APPSYS"
@@ -161,7 +171,7 @@ workflows:
       #service_queue_owner: "{{ global_vars.default_queue_owner }}"
 ```
 
-> **Note**: Template references use the format `filename.TemplateName` — e.g. `sap-outbound.new-seq` refers to the template named `new-seq` inside `sap-outbound.yaml`.
+> **Note**: Template references use the format `filename.TemplateName` — e.g. `app-outbound.new-seq` refers to the template named `new-seq` inside `app-outbound.yaml`.
 
 **Explanation:** Workflows are executed top-to-bottom in the order listed. Each workflow entry is independent — you can mix different templates and inputs freely. Commented-out inputs show available optional overrides; uncomment them to change from the template's default values.
 
@@ -432,15 +442,15 @@ semp-workflow init --output-dir templates --force
 
 ## 8. Built-in Template Reference
 
-### sap-outbound — SAP Outbound Workflows
+### app-outbound — APP Outbound Workflows
 
-Message direction: Solace -> SAP (broker receives and forwards to downstream)
+Message direction: Solace -> APP (broker receives and forwards to downstream)
 
 | Template | Description |
 |---|---|
-| `sap-outbound.new-seq` | Create a sequential-delivery queue set (Service Queue + Mirror Queue + DMQ + subscriptions) |
-| `sap-outbound.new-non-seq` | Create a concurrent-delivery queue set (same structure as new-seq, different default max-redelivery) |
-| `sap-outbound.delete` | Delete an outbound queue set |
+| `app-outbound.new-seq` | Create a sequential-delivery queue set (Service Queue + Mirror Queue + DMQ + subscriptions) |
+| `app-outbound.new-non-seq` | Create a concurrent-delivery queue set (same structure as new-seq, different default max-redelivery) |
+| `app-outbound.delete` | Delete an outbound queue set |
 
 **Required inputs:**
 
@@ -452,31 +462,31 @@ Message direction: Solace -> SAP (broker receives and forwards to downstream)
 
 **What it creates:** Beyond queues and subscriptions, the `new-seq` and `new-non-seq` templates also provision the client profile, per-user ACL profile, client username, and publish topic exception. The `new-non-seq` variant differs only in `service_queue_max_redelivery` (5 vs 0). The `delete` template removes queues and per-user access control resources in reverse dependency order.
 
-> See **[docs/template-sap-outbound.md](template-sap-outbound.md)** for the full parameter and action reference.
+> See **[docs/template-app-outbound.md](template-app-outbound.md)** for the full parameter and action reference.
 
 ---
 
-### sap-inbound — SAP Inbound Workflows
+### app-inbound — APP Inbound Workflows
 
-Message direction: SAP -> Solace -> backend REST service
+Message direction: APP -> Solace -> backend REST service
 
 | Template | Description |
 |---|---|
-| `sap-inbound.new-seq` | Create sequential inbound flow (queue set + RDP + REST Consumer + Queue Binding); subscription topic: `domain/system/topic` |
-| `sap-inbound.new-non-seq` | Create concurrent inbound flow; subscription topic: `topic_prefix/topic` |
-| `sap-inbound.delete` | Delete inbound resources (RDP first, then queues) |
+| `app-inbound.new-seq` | Create sequential inbound flow (queue set + RDP + REST Consumer + Queue Binding); subscription topic: `domain/system/topic` |
+| `app-inbound.new-non-seq` | Create concurrent inbound flow; subscription topic: `topic_prefix/topic` |
+| `app-inbound.delete` | Delete inbound resources (RDP first, then queues) |
 
 **Required inputs:**
 
 | Variable | Description | Example |
 |---|---|---|
 | `domain` | Business domain | `CENTRAL` |
-| `system` | System name | `SAP` |
+| `system` | System name | `APP` |
 | `system_topic` | Topic identifier | `SITEB.ORDERS.ORDER-DETAIL` |
 
 **What it creates:** Beyond the queue set and access control resources (client profile, per-user ACL profile, client username, publish exception), the inbound templates also create a REST Delivery Point (RDP), REST Consumer (the HTTP endpoint), and a Queue Binding (connecting the queue to the RDP). This sets up the full message delivery pipeline from Solace to a backend REST API.
 
-> See **[docs/template-sap-inbound.md](template-sap-inbound.md)** for the full parameter and action reference.
+> See **[docs/template-app-inbound.md](template-app-inbound.md)** for the full parameter and action reference.
 
 ---
 
@@ -526,11 +536,11 @@ For full parameter details, run `semp-workflow list-modules` or see [all-modules
 
 ## 10. Common Scenario Examples
 
-All examples below use the built-in SAP templates (`sap-outbound.yaml` and `sap-inbound.yaml`).
+All examples below use the built-in APP templates (`app-outbound.yaml` and `app-inbound.yaml`).
 
-### Scenario 1: Create a single SAP outbound queue set
+### Scenario 1: Create a single APP outbound queue set
 
-**Use case:** Set up a new outbound message flow (Solace -> SAP) for a specific business topic.
+**Use case:** Set up a new outbound message flow (Solace -> APP) for a specific business topic.
 
 ```yaml
 # config.yaml
@@ -542,14 +552,14 @@ semp:
   verify_ssl: false
 
 global_vars:
-  topic_prefix: "SITEA/SAP/AIF"
+  topic_prefix: "SITEA/APP/AIF"
   default_client_profile: "cp-it-user"
   default_acl_profile: "acl-it-user-{{ inputs.aem_client_username }}"
 
 templates_dir: "templates"
 
 workflows:
-  - template: "sap-outbound.new-seq"
+  - template: "app-outbound.new-seq"
     inputs:
       domain: "CENTRAL"
       system: "APPSYS"
@@ -564,11 +574,11 @@ workflows:
 2. Updates `cp-it-user` to enable guaranteed send/receive
 3. Creates ACL profile `acl-it-user-svc-app-client` with allow-connect, disallow-publish, disallow-subscribe (skipped if exists)
 4. Creates client username `svc-app-client` linked to both profiles (skipped if exists)
-5. Adds publish topic exception `SITEA/SAP/AIF/SITEB.ORDERS.ORDER-CREATE` to the ACL profile (skipped if exists)
+5. Adds publish topic exception `SITEA/APP/AIF/SITEB.ORDERS.ORDER-CREATE` to the ACL profile (skipped if exists)
 6. Creates service queue `TO-CENTRAL-APPSYS-SITEB.ORDERS.ORDER-CREATE` (skipped if exists)
 7. Creates mirror queue `MIRROR/TO-CENTRAL-APPSYS-SITEB.ORDERS.ORDER-CREATE` (skipped if exists)
 8. Creates dead-message queue `DMQ/TO-CENTRAL-APPSYS-SITEB.ORDERS.ORDER-CREATE` (skipped if exists)
-9. Subscribes the service queue to `SITEA/SAP/AIF/SITEB.ORDERS.ORDER-CREATE` (skipped if exists)
+9. Subscribes the service queue to `SITEA/APP/AIF/SITEB.ORDERS.ORDER-CREATE` (skipped if exists)
 10. Subscribes the mirror queue to the same topic (skipped if exists)
 
 Re-running produces all `SKIPPED` results — no changes.
@@ -583,34 +593,34 @@ semp-workflow run -c config.yaml
 
 ---
 
-### Scenario 2: Create a SAP inbound flow (queue + RDP + REST delivery)
+### Scenario 2: Create a APP inbound flow (queue + RDP + REST delivery)
 
-**Use case:** Set up an inbound message flow (SAP -> Solace -> backend REST service) that delivers messages to an HTTP endpoint.
+**Use case:** Set up an inbound message flow (APP -> Solace -> backend REST service) that delivers messages to an HTTP endpoint.
 
 ```yaml
 workflows:
-  - template: "sap-inbound.new-seq"
+  - template: "app-inbound.new-seq"
     inputs:
       domain: "CENTRAL"
-      system: "SAP"
+      system: "APP"
       system_topic: "SITEB.ORDERS.ORDER-CREATE"
       non_service_queue_owner: "ADMIN-USER"
-      aem_client_username: "SAP-AIF-CLIENT"
-      rc_remote_host: "sap-backend.internal"
+      aem_client_username: "APP-AIF-CLIENT"
+      rc_remote_host: "app-backend.internal"
       rc_remote_port: 443
       rc_tls_enabled: true
 ```
 
 **What happens (step by step):**
 1. Creates/updates client profile `cp-it-user` with guaranteed send/receive
-2. Creates ACL profile `acl-it-user-SAP-AIF-CLIENT` (skipped if exists)
-3. Creates client username `SAP-AIF-CLIENT` (skipped if exists)
+2. Creates ACL profile `acl-it-user-APP-AIF-CLIENT` (skipped if exists)
+3. Creates client username `APP-AIF-CLIENT` (skipped if exists)
 4. Adds publish topic exception for the subscription topic (skipped if exists)
-5. Creates service queue `FROM-CENTRAL-SAP-SITEB.ORDERS.ORDER-CREATE`, owned by the RDP (skipped if exists)
+5. Creates service queue `FROM-CENTRAL-APP-SITEB.ORDERS.ORDER-CREATE`, owned by the RDP (skipped if exists)
 6. Creates mirror queue and DMQ (skipped if exists)
-7. Subscribes both queues to `CENTRAL/SAP/SITEB.ORDERS.ORDER-CREATE` (skipped if exists)
-8. Creates REST Delivery Point `RDP/FROM-CENTRAL-SAP-SITEB.ORDERS.ORDER-CREATE` (skipped if exists)
-9. Creates REST Consumer pointing at `sap-backend.internal:443` with TLS (skipped if exists)
+7. Subscribes both queues to `CENTRAL/APP/SITEB.ORDERS.ORDER-CREATE` (skipped if exists)
+8. Creates REST Delivery Point `RDP/FROM-CENTRAL-APP-SITEB.ORDERS.ORDER-CREATE` (skipped if exists)
+9. Creates REST Consumer pointing at `app-backend.internal:443` with TLS (skipped if exists)
 10. Binds the service queue to the RDP (skipped if exists)
 
 The full pipeline: messages arrive on topic -> service queue (via subscription) -> RDP picks up via queue binding -> REST consumer delivers as HTTP POST to backend.
@@ -623,7 +633,7 @@ The full pipeline: messages arrive on topic -> service queue (via subscription) 
 
 ```yaml
 workflows:
-  - template: "sap-outbound.new-non-seq"
+  - template: "app-outbound.new-non-seq"
     inputs:
       domain: "CENTRAL"
       system: "APPSYS"
@@ -632,7 +642,7 @@ workflows:
       non_service_queue_owner: "ADMIN-USER"
       aem_client_username: "svc-app-client"
 
-  - template: "sap-outbound.new-non-seq"
+  - template: "app-outbound.new-non-seq"
     inputs:
       domain: "CENTRAL"
       system: "APPSYS"
@@ -641,14 +651,14 @@ workflows:
       non_service_queue_owner: "ADMIN-USER"
       aem_client_username: "svc-app-client"
 
-  - template: "sap-inbound.new-non-seq"
+  - template: "app-inbound.new-non-seq"
     inputs:
       domain: "CENTRAL"
-      system: "SAP"
+      system: "APP"
       system_topic: "ORDER.CONFIRM"
       non_service_queue_owner: "ADMIN-USER"
-      aem_client_username: "SAP-AIF-CLIENT"
-      rc_remote_host: "sap-backend.internal"
+      aem_client_username: "APP-AIF-CLIENT"
+      rc_remote_host: "app-backend.internal"
 ```
 
 **What happens:** All three workflows run in sequence. The first two create outbound queue sets (with shared `cp-it-user` profile and per-user ACL profiles); the third creates an inbound flow with RDP and REST consumer. Access control resources that already exist from previous workflows are skipped automatically.
@@ -665,22 +675,22 @@ semp-workflow run -c config.yaml
 
 ```yaml
 global_vars:
-  topic_prefix: "SITEA/SAP/AIF"
+  topic_prefix: "SITEA/APP/AIF"
   default_client_profile: "cp-it-user"
   default_acl_profile: "acl-it-user-{{ inputs.aem_client_username }}"
-  default_rc_remote_host: "sap-backend.internal"
+  default_rc_remote_host: "app-backend.internal"
   default_rc_remote_port: 443
   default_rc_tls_enabled: true
   default_queue_owner: "svc-app-client"
 
 workflows:
-  - template: "sap-inbound.new-non-seq"
+  - template: "app-inbound.new-non-seq"
     inputs:
       domain: "CENTRAL"
-      system: "SAP"
+      system: "APP"
       system_topic: "SITEB.ORDERS.ORDER-DETAIL"
       non_service_queue_owner: "ADMIN-USER"
-      aem_client_username: "SAP-AIF-CLIENT"
+      aem_client_username: "APP-AIF-CLIENT"
       # optional overrides reference global_vars:
       #client_profile_name: "{{ global_vars.default_client_profile }}"
       #acl_profile_name: "{{ global_vars.default_acl_profile }}"
@@ -700,7 +710,7 @@ workflows:
 ```yaml
 workflows:
   # Delete an outbound flow
-  - template: "sap-outbound.delete"
+  - template: "app-outbound.delete"
     inputs:
       domain: "CENTRAL"
       system: "APPSYS"
@@ -708,12 +718,12 @@ workflows:
       aem_client_username: "svc-app-client"
 
   # Delete an inbound flow
-  - template: "sap-inbound.delete"
+  - template: "app-inbound.delete"
     inputs:
       domain: "CENTRAL"
-      system: "SAP"
+      system: "APP"
       system_topic: "SITEB.ORDERS.ORDER-DETAIL"
-      aem_client_username: "SAP-AIF-CLIENT"
+      aem_client_username: "APP-AIF-CLIENT"
 ```
 
 **What happens:**
@@ -738,7 +748,7 @@ Resources that don't exist are skipped. The shared client profile `cp-it-user` i
 ```yaml
 workflows:
   # Sequential: max_redelivery = 0 (forever, no retries to DMQ)
-  - template: "sap-outbound.new-seq"
+  - template: "app-outbound.new-seq"
     inputs:
       domain: "CENTRAL"
       system: "APPSYS"
@@ -748,7 +758,7 @@ workflows:
       aem_client_username: "svc-app-client"
 
   # Non-sequential: max_redelivery = 5 (retry 5 times, then route to DMQ)
-  - template: "sap-outbound.new-non-seq"
+  - template: "app-outbound.new-non-seq"
     inputs:
       domain: "CENTRAL"
       system: "APPSYS"
@@ -767,12 +777,12 @@ workflows:
 ### Issue: Template not found
 
 ```
-TemplateError: Template 'sap-outbound.new-seq' not found.
+TemplateError: Template 'app-outbound.new-seq' not found.
 ```
 
 **Causes and fixes:**
 - Verify `templates_dir` in `config.yaml` points to the correct path (relative to the config file)
-- Confirm `sap-outbound.yaml` exists in that directory
+- Confirm `app-outbound.yaml` exists in that directory
 - The tool uses its embedded templates when no `templates_dir` / `--templates-dir` is set; run `semp-workflow init` to export the bundled templates for customisation
 
 ---

@@ -34,7 +34,7 @@ func TestEnc(t *testing.T) {
 	// Every byte but the unreserved set is percent-encoded with uppercase hex;
 	// '/' is NOT left alone.
 	assert.Equal(t, "a%20b", Enc("a b"))
-	assert.Equal(t, "SITEA%2FSAP%2F%3E", Enc("SITEA/SAP/>"))
+	assert.Equal(t, "SITEA%2FAPP%2F%3E", Enc("SITEA/APP/>"))
 	assert.Equal(t, "abc-_.~", Enc("abc-_.~"))
 	assert.Equal(t, "a%40b", Enc("a@b"))
 }

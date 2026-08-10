@@ -9,7 +9,7 @@ import (
 // TestFSContainsBundledTemplates covers the FS accessor and verifies the
 // embedded file system exposes the bundled workflow templates with content.
 func TestFSContainsBundledTemplates(t *testing.T) {
-	data, err := FS().ReadFile("sap-inbound.yaml")
+	data, err := FS().ReadFile("app-inbound.yaml")
 	require.NoError(t, err)
 	require.NotEmpty(t, data)
 }

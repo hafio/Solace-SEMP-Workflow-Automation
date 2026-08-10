@@ -31,23 +31,23 @@ A single self-contained binary -- the workflow templates are embedded, so there 
 
 ### Install a prebuilt binary (recommended)
 
-Every [release](https://github.com/hafio/Solace-SEMP-Workflow-Automation/releases) attaches a binary for each supported platform -- `semp-workflow_{linux,darwin,windows}_{amd64,arm64}` (Windows adds `.exe`) -- plus a `SHA256SUMS` file. Download the asset for your platform, verify it, and put it on your `PATH`:
+Every [release](https://github.com/hafio/Solace-SEMP-Workflow-Automation/releases) attaches a binary for each supported platform -- `semp-workflow-{linux,darwin,windows}-{amd64,arm64}` (Windows adds `.exe`) -- plus a `SHA256SUMS.txt` file. Download the asset for your platform, verify it, and put it on your `PATH`:
 
 ```bash
 # Linux/macOS -- adjust the asset name for your OS/arch
 base=https://github.com/hafio/Solace-SEMP-Workflow-Automation/releases/latest/download
-curl -LO "$base/semp-workflow_linux_amd64"
-curl -LO "$base/SHA256SUMS"
-sha256sum --ignore-missing -c SHA256SUMS      # -> semp-workflow_linux_amd64: OK
-install -m 0755 semp-workflow_linux_amd64 /usr/local/bin/semp-workflow
+curl -LO "$base/semp-workflow-linux-amd64"
+curl -LO "$base/SHA256SUMS.txt"
+sha256sum --ignore-missing -c SHA256SUMS.txt  # -> semp-workflow-linux-amd64: OK
+install -m 0755 semp-workflow-linux-amd64 /usr/local/bin/semp-workflow
 ```
 
-On Windows, download `semp-workflow_windows_amd64.exe` and verify it against `SHA256SUMS`.
+On Windows, download `semp-workflow-windows-amd64.exe` and verify it against `SHA256SUMS.txt`.
 
 ### Build from source (requires Go 1.26+)
 
 ```bash
-./scripts/dev.sh build        # -> dist/semp-workflow   (Windows: .\scripts\dev.ps1 build)
+./scripts/dev.sh build        # -> dist/semp-workflow-<os>-<arch>[.exe]   (Windows: .\scripts\dev.ps1 build)
 ```
 
 Then run it:
@@ -81,6 +81,6 @@ For full technical details -- configuration reference, template authoring, modul
 | [docs/HOWTO-zh.md](docs/HOWTO-zh.md) | Chinese translation of the How-To guide |
 | [docs/all-modules.md](docs/all-modules.md) | Auto-generated module parameter reference |
 | [docs/TESTS.md](docs/TESTS.md) | Test suite overview, layout, and module registry |
-| [docs/template-sap-inbound.md](docs/template-sap-inbound.md) | `sap-inbound` template: inputs, action sequence, examples |
-| [docs/template-sap-outbound.md](docs/template-sap-outbound.md) | `sap-outbound` template: inputs, action sequence, examples |
+| [docs/template-app-inbound.md](docs/template-app-inbound.md) | `app-inbound` template: inputs, action sequence, examples |
+| [docs/template-app-outbound.md](docs/template-app-outbound.md) | `app-outbound` template: inputs, action sequence, examples |
 | [docs/release.md](docs/release.md) | Release process and versioning scheme |

@@ -28,7 +28,7 @@ semp:
   password: secret
   msg_vpn: default
 workflows:
-  - template: sap-inbound.TestFlow
+  - template: app-inbound.TestFlow
     inputs:
       queueName: Q1
 `
@@ -44,7 +44,7 @@ func TestLoadConfigValid(t *testing.T) {
 	assert.Equal(t, 30, cfg.Semp.Timeout)
 	assert.NotNil(t, cfg.GlobalVars) // default empty map
 	require.Len(t, cfg.Workflows, 1)
-	assert.Equal(t, "sap-inbound.TestFlow", cfg.Workflows[0].Template)
+	assert.Equal(t, "app-inbound.TestFlow", cfg.Workflows[0].Template)
 	assert.Equal(t, "Q1", cfg.Workflows[0].Inputs["queueName"])
 	assert.True(t, cfg.UseBundledTemplates) // no templates dir on disk
 }
@@ -150,12 +150,12 @@ workflow-templates:
 
 func TestLoadTemplatesFS(t *testing.T) {
 	fsys := fstest.MapFS{
-		"sap-inbound.yaml": &fstest.MapFile{Data: []byte(templateYAML)},
+		"app-inbound.yaml": &fstest.MapFile{Data: []byte(templateYAML)},
 	}
 	reg, err := LoadTemplatesFS(fsys)
 	require.NoError(t, err)
 
-	tmpl, ok := reg["sap-inbound.TestFlow"]
+	tmpl, ok := reg["app-inbound.TestFlow"]
 	require.True(t, ok)
 	assert.Equal(t, "TestFlow", tmpl.Name)
 

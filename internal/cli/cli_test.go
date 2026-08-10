@@ -69,7 +69,7 @@ func TestListModulesWritesFile(t *testing.T) {
 func TestValidateBundledTemplateOK(t *testing.T) {
 	dir := t.TempDir()
 	cfg := writeFile(t, dir, "config.yaml",
-		"semp:\n  host: h\n  username: u\n  password: p\n  msg_vpn: v\nworkflows:\n  - template: sap-inbound.new-seq\n")
+		"semp:\n  host: h\n  username: u\n  password: p\n  msg_vpn: v\nworkflows:\n  - template: app-inbound.new-seq\n")
 	code, out, _ := runCLI(t, "validate", "-c", cfg)
 	assert.Equal(t, 0, code)
 	assert.Contains(t, out, "Validation passed!")

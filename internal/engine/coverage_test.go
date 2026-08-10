@@ -29,7 +29,7 @@ func TestNewEngineBundledTemplates(t *testing.T) {
 	eng, err := NewEngine(cfg, true, false)
 	require.NoError(t, err)
 	require.NotNil(t, eng)
-	assert.NotEmpty(t, eng.templates) // bundled sap-*.yaml templates loaded
+	assert.NotEmpty(t, eng.templates) // bundled app-*.yaml templates loaded
 	assert.NotNil(t, eng.client)
 	assert.Same(t, cfg, eng.config)
 	assert.True(t, eng.dryRun)

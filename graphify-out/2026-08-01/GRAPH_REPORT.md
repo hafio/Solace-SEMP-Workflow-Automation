@@ -1,11 +1,11 @@
 # Graph Report - SEMP-Workflow_Automation  (2026-08-01)
 
 ## Corpus Check
-- 60 files · ~48,706 words
+- 60 files · ~48,983 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 717 nodes · 1754 edges · 42 communities (38 shown, 4 thin omitted)
+- 721 nodes · 1758 edges · 40 communities (36 shown, 4 thin omitted)
 - Extraction: 72% EXTRACTED · 28% INFERRED · 0% AMBIGUOUS · INFERRED: 489 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -38,9 +38,7 @@
 - 11. Troubleshooting
 - integrationClient
 - 7. CLI Commands
-- 5. Configuration File
 - Queue Binding Add Tests
-- 6. Workflow Templates
 - test.sh
 - ACL Subscribe Exception Module
 - Queue Delete Tests
@@ -83,11 +81,11 @@
 ## Import Cycles
 - None detected.
 
-## Communities (42 total, 4 thin omitted)
+## Communities (40 total, 4 thin omitted)
 
 ### Community 0 - "Engine & Config Core"
-Cohesion: 0.18
-Nodes (27): T, runCLI(), TestInitCopiesBundledTemplates(), TestListModules(), TestListModulesWritesFile(), TestMissingConfigFlagIsUsageError(), TestRunConfigError(), TestRunTemplateNotFoundExit1() (+19 more)
+Cohesion: 0.17
+Nodes (28): T, runCLI(), TestClassifyExit(), TestInitCopiesBundledTemplates(), TestListModules(), TestListModulesWritesFile(), TestMissingConfigFlagIsUsageError(), TestRunConfigError() (+20 more)
 
 ### Community 1 - "Payload Helpers & Coercion"
 Cohesion: 0.32
@@ -98,8 +96,8 @@ Cohesion: 0.36
 Nodes (18): Have(), Import-LocalEnv(), Invoke-Logged(), Die(), Ok(), Step(), Task-All(), Task-Build() (+10 more)
 
 ### Community 3 - "Jinja2 Templating Engine"
-Cohesion: 0.21
-Nodes (13): cfgInt(), TestCoerceBoolDefaultBranch(), CoerceBool(), CoerceInt(), isUnreserved(), Stringify(), T, TestCheckNameLength() (+5 more)
+Cohesion: 0.29
+Nodes (7): 10. 常見情境範例, 情境一：建立單一 SAP 出站佇列組合, 情境三：批次建立多個工作流程, 情境二：建立 SAP 入站流程（佇列 + RDP + REST 遞送）, 情境五：刪除資源, 情境六：循序遞送 vs 並發遞送, 情境四：使用全域變數統一管理設定
 
 ### Community 4 - "Queue & Subscription Modules"
 Cohesion: 0.25
@@ -134,16 +132,16 @@ Cohesion: 0.60
 Nodes (4): T, TestNewActionResult(), TestWorkflowResultCounts(), TestWorkflowResultNoFailures()
 
 ### Community 15 - "SEMP Workflow Automation — 操作指南"
-Cohesion: 0.05
-Nodes (40): 10. 常見情境範例, 11. 故障排除, 1. 簡介, 2. 系統需求, 3. 開始使用, 4. 專案結構, 5.1 SEMP 連線設定, 5.2 全域變數（global_vars） (+32 more)
+Cohesion: 0.17
+Nodes (12): 1. 簡介, 2. 系統需求, 3. 開始使用, 4. 專案結構, 8. 內建範本說明, 9. 可用模組, sap-inbound — SAP 入站工作流程, sap-outbound — SAP 出站工作流程 (+4 more)
 
 ### Community 16 - "SEMP Workflow Automation — How-To Guide"
-Cohesion: 0.20
-Nodes (10): 1. Introduction, 2. Prerequisites, 3. Getting Started, 4. Project Structure, 8. Built-in Template Reference, 9. Available Modules, sap-inbound — SAP Inbound Workflows, sap-outbound — SAP Outbound Workflows (+2 more)
+Cohesion: 0.05
+Nodes (42): 10. Common Scenario Examples, 11. Troubleshooting, 1. Introduction, 2. Prerequisites, 3. Getting Started, 4. Project Structure, 5.1 SEMP Connection, 5.2 Global Variables (global_vars) (+34 more)
 
 ### Community 17 - "RDP Consumer/Binding & Client"
-Cohesion: 0.09
-Nodes (44): Buffer, Command, classifyExit(), Execute(), joinComma(), newInitCmd(), newListModulesCmd(), newRootCmd() (+36 more)
+Cohesion: 0.07
+Nodes (50): Buffer, Command, Engine, classifyExit(), Execute(), joinComma(), newInitCmd(), newListModulesCmd() (+42 more)
 
 ### Community 18 - "SEMP Workflow Automation"
 Cohesion: 0.29
@@ -151,47 +149,39 @@ Nodes (6): Build & test (run from the repo root), Documentation rules, graphify,
 
 ### Community 19 - "10. Common Scenario Examples"
 Cohesion: 0.29
-Nodes (7): 10. Common Scenario Examples, Scenario 1: Create a single SAP outbound queue set, Scenario 2: Create a SAP inbound flow (queue + RDP + REST delivery), Scenario 3: Batch-create multiple workflows, Scenario 4: Centralise settings in global_vars, Scenario 5: Delete resources, Scenario 6: Sequential vs non-sequential delivery
+Nodes (7): 11. 故障排除, 問題：找不到範本（Template not found）, 問題：未提供必填輸入（Required input not provided）, 問題：未預期的輸入變數（Unexpected inputs）, 問題：變數未解析（Unresolved Jinja2 expression）, 問題：連線失敗（Connection error）, 試運行模式
 
 ### Community 20 - "Base Module Abstraction"
-Cohesion: 0.10
-Nodes (59): T, TestAclProfileDeleteBranches(), TestClientProfileDelete(), TestClientUsernameUpdateAppliesFields(), TestPublishExceptionAddBranches(), TestPublishExceptionDelete(), TestQueueBindingAddBranches(), TestQueueBindingDelete() (+51 more)
+Cohesion: 0.11
+Nodes (56): T, TestAclProfileDeleteBranches(), TestClientProfileDelete(), TestClientUsernameUpdateAppliesFields(), TestPublishExceptionAddBranches(), TestPublishExceptionDelete(), TestQueueBindingAddBranches(), TestQueueBindingDelete() (+48 more)
 
 ### Community 21 - "11. Troubleshooting"
-Cohesion: 0.29
-Nodes (7): 11. Troubleshooting, Dry-run best practice, Issue: Connection error, Issue: Required input not provided, Issue: Template not found, Issue: Unexpected inputs, Issue: Unresolved Jinja2 expression
+Cohesion: 0.33
+Nodes (6): 7.1 執行工作流程, 7.2 驗證設定檔, 7.3 列出所有可用模組, 7.4 匯出內建範本, 7. CLI 指令, 頂層說明
 
 ### Community 22 - "integrationClient"
-Cohesion: 0.57
-Nodes (6): Client, T, integrationClient(), TestIntegrationConnection(), TestIntegrationExistsNotFound(), TestIntegrationQueueLifecycle()
+Cohesion: 0.40
+Nodes (5): 5.1 SEMP 連線設定, 5.2 全域變數（global_vars）, 5.3 工作流程清單（workflows）, 5.4 完整設定檔範例, 5. 設定檔
 
 ### Community 23 - "7. CLI Commands"
-Cohesion: 0.33
-Nodes (6): 7.1 Run Workflows, 7.2 Validate Configuration, 7.3 List Available Modules, 7.4 Export Bundled Templates, 7. CLI Commands, Top-Level Help
-
-### Community 24 - "5. Configuration File"
 Cohesion: 0.40
-Nodes (5): 5.1 SEMP Connection, 5.2 Global Variables (global_vars), 5.3 Workflow List (workflows), 5.4 Full Config Example, 5. Configuration File
+Nodes (5): 6. 工作流程範本, YAML 錨點（Anchor）支援, 兩階段渲染說明, 變數渲染規則, 輸入結構
 
 ### Community 25 - "Queue Binding Add Tests"
 Cohesion: 0.07
-Nodes (48): Duration, SEMPError, HandlerFunc, asSEMPError(), backoffDelay(), Request, Response, NewClient() (+40 more)
-
-### Community 26 - "6. Workflow Templates"
-Cohesion: 0.40
-Nodes (5): 6. Workflow Templates, Input Schema, Two-Pass Rendering, Variable Rendering Rules, YAML Anchor Support
+Nodes (54): Duration, HandlerFunc, asSEMPError(), backoffDelay(), Request, Response, NewClient(), Client (+46 more)
 
 ### Community 29 - "ACL Subscribe Exception Module"
-Cohesion: 0.17
-Nodes (30): NewActionResult(), Client, Client, Client, argStr(), coerceBoolFields(), coerceIntFields(), dryrun() (+22 more)
+Cohesion: 0.12
+Nodes (42): cfgInt(), NewActionResult(), Client, Client, Client, argStr(), coerceBoolFields(), coerceIntFields() (+34 more)
 
 ### Community 37 - "Queue Delete Tests"
 Cohesion: 0.25
 Nodes (3): init(), rdpRestConsumerAdd, rdpRestConsumerDelete
 
 ### Community 43 - "Action Dispatch"
-Cohesion: 0.12
-Nodes (17): ConfigError, TemplateError, ValidationError, WorkflowError, TestClassifyExit(), T, TestWorkflowAndValidationErrorMessages(), IsWorkflowError() (+9 more)
+Cohesion: 0.11
+Nodes (17): ConfigError, SEMPError, TemplateError, ValidationError, WorkflowError, T, TestWorkflowAndValidationErrorMessages(), IsWorkflowError() (+9 more)
 
 ### Community 48 - "README & SEMP Overview"
 Cohesion: 0.67
@@ -203,11 +193,11 @@ Nodes (6): clientProfileParams(), init(), clientProfileAdd, clientProfileDelete,
 
 ### Community 57 - "NewEngine"
 Cohesion: 0.17
-Nodes (32): Config, T, TestRenderMalformedTemplateError(), TestRenderMapRecursionError(), TestRenderSliceRecursionError(), TestRenderUndefinedIndexBranch(), TestValidateInputsIntegerCoercionVariants(), TestValidateInputsOptionalSkipped() (+24 more)
+Nodes (31): Config, T, TestRenderMalformedTemplateError(), TestRenderMapRecursionError(), TestRenderSliceRecursionError(), TestRenderUndefinedIndexBranch(), TestValidateInputsIntegerCoercionVariants(), TestValidateInputsOptionalSkipped() (+23 more)
 
 ### Community 59 - "newTestEngine"
 Cohesion: 0.16
-Nodes (24): Engine, engineFake, T, TestNewEngineBundledTemplates(), TestNewEngineMissingTemplatesDir(), TestResolveTemplateNotFoundListsAvailable(), TestRunFailFastStopsAfterFailedWorkflow(), TestRunFailFastStopsOnTemplateError() (+16 more)
+Nodes (25): Engine, engineFake, T, TestNewEngineBundledTemplates(), TestNewEngineMissingTemplatesDir(), TestResolveTemplateNotFoundListsAvailable(), TestRunFailFastStopsAfterFailedWorkflow(), TestRunFailFastStopsOnTemplateError() (+17 more)
 
 ### Community 62 - ".Execute"
 Cohesion: 0.18
@@ -218,8 +208,8 @@ Cohesion: 0.18
 Nodes (4): init(), rdpAdd, rdpDelete, rdpUpdate
 
 ### Community 75 - "WorkflowResult"
-Cohesion: 0.09
-Nodes (43): ActionSpec, AppConfig, SempConfig, WorkflowEntry, WorkflowTemplate, Engine, cfgBool(), cfgStr() (+35 more)
+Cohesion: 0.12
+Nodes (40): ActionSpec, AppConfig, SempConfig, WorkflowEntry, WorkflowTemplate, cfgBool(), cfgStr(), LoadConfig() (+32 more)
 
 ### Community 85 - "aclSubscribeExceptionAdd"
 Cohesion: 0.25
@@ -230,19 +220,19 @@ Cohesion: 0.25
 Nodes (3): init(), queueBindingAdd, queueBindingDelete
 
 ## Knowledge Gaps
-- **96 isolated node(s):** `semp-workflow`, `Client`, `InputSpec`, `NO_COLOR`, `CGO_ENABLED` (+91 more)
+- **98 isolated node(s):** `semp-workflow`, `Client`, `InputSpec`, `NO_COLOR`, `CGO_ENABLED` (+93 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **4 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Enc()` connect `ACL Subscribe Exception Module` to `Engine & Config Core`, `Jinja2 Templating Engine`, `CLI Commands`, `WorkflowResult`, `integrationClient`, `Queue Binding Add Tests`?**
-  _High betweenness centrality (0.136) - this node is a cross-community bridge._
-- **Why does `exec()` connect `Base Module Abstraction` to `CLI Commands`, `ACL Subscribe Exception Module`?**
-  _High betweenness centrality (0.110) - this node is a cross-community bridge._
-- **Why does `ActionResult` connect `ACL Subscribe Exception Module` to `RDP Consumer/Binding & Client`, `WorkflowResult`, `Base Module Abstraction`?**
-  _High betweenness centrality (0.104) - this node is a cross-community bridge._
+- **Why does `Enc()` connect `ACL Subscribe Exception Module` to `Engine & Config Core`, `Queue Binding Add Tests`, `CLI Commands`, `WorkflowResult`?**
+  _High betweenness centrality (0.134) - this node is a cross-community bridge._
+- **Why does `exec()` connect `Base Module Abstraction` to `RDP Consumer/Binding & Client`, `CLI Commands`, `ACL Subscribe Exception Module`?**
+  _High betweenness centrality (0.109) - this node is a cross-community bridge._
+- **Why does `ActionResult` connect `ACL Subscribe Exception Module` to `RDP Consumer/Binding & Client`, `Base Module Abstraction`?**
+  _High betweenness centrality (0.103) - this node is a cross-community bridge._
 - **Are the 18 inferred relationships involving `exec()` (e.g. with `TestAclProfileDeleteBranches()` and `TestClientProfileDelete()`) actually correct?**
   _`exec()` has 18 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 35 inferred relationships involving `absent()` (e.g. with `TestAclProfileDeleteBranches()` and `TestClientProfileDelete()`) actually correct?**
@@ -250,4 +240,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **Are the 33 inferred relationships involving `Enc()` (e.g. with `TestIntegrationCLIRun()` and `TestIntegrationEngineLifecycle()`) actually correct?**
   _`Enc()` has 33 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `semp-workflow`, `Client`, `InputSpec` to the rest of the system?**
-  _96 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _98 weakly-connected nodes found - possible documentation gaps or missing edges._

@@ -49,14 +49,14 @@ SEMP Workflow Automation 是一套類似 Ansible Playbook 的命令列工具，�
 
 ### 安裝預先建置的二進位檔（建議）
 
-每個 [GitHub 發行版本](https://github.com/hafio/Solace-SEMP-Workflow-Automation/releases) 都會為各支援平台附上一個二進位檔 —— `semp-workflow_{linux,darwin,windows}_{amd64,arm64}`（Windows 會多出 `.exe`）—— 以及一個 `SHA256SUMS` 檔案。下載對應你平台的檔案、驗證校驗碼，再放入 `PATH` 即可：
+每個 [GitHub 發行版本](https://github.com/hafio/Solace-SEMP-Workflow-Automation/releases) 都會為各支援平台附上一個二進位檔 —— `semp-workflow-{linux,darwin,windows}-{amd64,arm64}`（Windows 會多出 `.exe`）—— 以及一個 `SHA256SUMS.txt` 檔案。下載對應你平台的檔案、驗證校驗碼，再放入 `PATH` 即可：
 
 ```bash
 base=https://github.com/hafio/Solace-SEMP-Workflow-Automation/releases/latest/download
-curl -LO "$base/semp-workflow_linux_amd64"     # 依你的 OS/arch 調整
-curl -LO "$base/SHA256SUMS"
-sha256sum --ignore-missing -c SHA256SUMS        # → semp-workflow_linux_amd64: OK
-install -m 0755 semp-workflow_linux_amd64 /usr/local/bin/semp-workflow
+curl -LO "$base/semp-workflow-linux-amd64"     # 依你的 OS/arch 調整
+curl -LO "$base/SHA256SUMS.txt"
+sha256sum --ignore-missing -c SHA256SUMS.txt    # → semp-workflow-linux-amd64: OK
+install -m 0755 semp-workflow-linux-amd64 /usr/local/bin/semp-workflow
 ```
 
 發行版二進位檔會以發行標籤作為版本號：執行 `semp-workflow --version` 會顯示例如 `semp-workflow, version v0.4.0`。
@@ -65,13 +65,23 @@ install -m 0755 semp-workflow_linux_amd64 /usr/local/bin/semp-workflow
 
 ```bash
 ./scripts/dev.sh build      # 於儲存庫根目錄執行；Windows：.\scripts\dev.ps1 build
-# → 產生 dist/semp-workflow（Windows 為 semp-workflow.exe）
+# → 產生 dist/semp-workflow-<os>-<arch>[.exe]，供主機使用（例如 dist/semp-workflow-linux-amd64）
 ```
 
 或直接使用 Go 工具鏈建置／執行：
 
 ```bash
 go build ./cmd/semp-workflow          # 或：go run ./cmd/semp-workflow
+```
+
+若要瞭解二進位檔大小的組成，可執行僅供檢視的 `size` 任務。它會重新建置二進位檔，
+並透過 [go-size-analyzer](https://github.com/Zxilly/go-size-analyzer) 依套件／模組
+列出大小明細：
+
+```bash
+./scripts/dev.sh size       # Windows：.\scripts\dev.ps1 size
+# 首次執行需連網以下載工具（不會全域安裝任何東西）
+# 無工具時的備援：go tool nm -size -sort=size dist/semp-workflow-<os>-<arch>
 ```
 
 接著執行：
@@ -136,7 +146,7 @@ semp:
 
 ```yaml
 global_vars:
-  topic_prefix: "SITEA/SAP/AIF"
+  topic_prefix: "SITEA/APP/AIF"
   default_queue_owner: "svc-app-client"
   default_rc_remote_host: "my-backend.example.com"
 ```
@@ -149,7 +159,7 @@ global_vars:
 
 ```yaml
 workflows:
-  - template: "sap-outbound.new-seq"    # 格式：檔名.範本名稱
+  - template: "app-outbound.new-seq"    # 格式：檔名.範本名稱
     inputs:
       domain: "CENTRAL"                       # 必填輸入
       system: "APPSYS"
@@ -158,7 +168,7 @@ workflows:
       #service_queue_owner: "{{ global_vars.default_queue_owner }}"
 ```
 
-> **注意**：範本參照格式為 `檔名.範本名稱`，例如 `sap-outbound.new-seq` 代表 `sap-outbound.yaml` 中名為 `new-seq` 的範本。
+> **注意**：範本參照格式為 `檔名.範本名稱`，例如 `app-outbound.new-seq` 代表 `app-outbound.yaml` 中名為 `new-seq` 的範本。
 
 **說明：** 工作流程按照清單中的順序由上而下執行。每個工作流程條目獨立運作，您可以自由混合不同範本與輸入值。註解的輸入表示可用的選填覆蓋項；取消註解即可變更範本預設值。
 
@@ -429,15 +439,15 @@ semp-workflow init --output-dir templates --force
 
 ## 8. 內建範本說明
 
-### sap-outbound — SAP 出站工作流程
+### app-outbound — APP 出站工作流程
 
-訊息流向：Solace -> SAP（Broker 接收訊息後轉送至下游）
+訊息流向：Solace -> APP（Broker 接收訊息後轉送至下游）
 
 | 範本 | 說明 |
 |---|---|
-| `sap-outbound.new-seq` | 建立循序遞送佇列組合（Service Queue + Mirror Queue + DMQ + 訂閱） |
-| `sap-outbound.new-non-seq` | 建立並發遞送佇列組合（與 new-seq 相同結構，預設重遞送次數不同） |
-| `sap-outbound.delete` | 刪除出站佇列組合 |
+| `app-outbound.new-seq` | 建立循序遞送佇列組合（Service Queue + Mirror Queue + DMQ + 訂閱） |
+| `app-outbound.new-non-seq` | 建立並發遞送佇列組合（與 new-seq 相同結構，預設重遞送次數不同） |
+| `app-outbound.delete` | 刪除出站佇列組合 |
 
 **必填輸入：**
 
@@ -449,31 +459,31 @@ semp-workflow init --output-dir templates --force
 
 **建立的資源：** `new-seq` 和 `new-non-seq` 範本除了建立佇列和訂閱外，還會佈建 Client Profile、per-user ACL Profile、Client Username 及發佈主題例外。`new-non-seq` 變體僅在 `service_queue_max_redelivery` 上不同（5 vs 0）。`delete` 範本按反向相依順序移除佇列和 per-user 存取控制資源。
 
-> 完整參數與動作參考請見 **[docs/template-sap-outbound.md](template-sap-outbound.md)**。
+> 完整參數與動作參考請見 **[docs/template-app-outbound.md](template-app-outbound.md)**。
 
 ---
 
-### sap-inbound — SAP 入站工作流程
+### app-inbound — APP 入站工作流程
 
-訊息流向：SAP -> Solace -> 後端 REST 服務
+訊息流向：APP -> Solace -> 後端 REST 服務
 
 | 範本 | 說明 |
 |---|---|
-| `sap-inbound.new-seq` | 建立循序入站流程（佇列組合 + RDP + REST Consumer + Queue Binding），訂閱主題格式：`domain/system/topic` |
-| `sap-inbound.new-non-seq` | 建立並發入站流程，訂閱主題格式：`topic_prefix/topic` |
-| `sap-inbound.delete` | 刪除入站資源（先刪 RDP，再刪佇列） |
+| `app-inbound.new-seq` | 建立循序入站流程（佇列組合 + RDP + REST Consumer + Queue Binding），訂閱主題格式：`domain/system/topic` |
+| `app-inbound.new-non-seq` | 建立並發入站流程，訂閱主題格式：`topic_prefix/topic` |
+| `app-inbound.delete` | 刪除入站資源（先刪 RDP，再刪佇列） |
 
 **必填輸入：**
 
 | 變數 | 說明 | 範例 |
 |---|---|---|
 | `domain` | 業務領域 | `CENTRAL` |
-| `system` | 系統名稱 | `SAP` |
+| `system` | 系統名稱 | `APP` |
 | `system_topic` | 主題識別碼 | `SITEB.ORDERS.ORDER-DETAIL` |
 
 **建立的資源：** 除了佇列組合和存取控制資源（Client Profile、per-user ACL Profile、Client Username、發佈例外）外，入站範本還會建立 REST Delivery Point（RDP）、REST Consumer（HTTP 端點）和 Queue Binding（連接佇列與 RDP）。這建立了從 Solace 到後端 REST API 的完整訊息遞送管道。
 
-> 完整參數與動作參考請見 **[docs/template-sap-inbound.md](template-sap-inbound.md)**。
+> 完整參數與動作參考請見 **[docs/template-app-inbound.md](template-app-inbound.md)**。
 
 ---
 
@@ -523,11 +533,11 @@ semp-workflow init --output-dir templates --force
 
 ## 10. 常見情境範例
 
-以下範例均使用內建的 SAP 範本（`sap-outbound.yaml` 和 `sap-inbound.yaml`）。
+以下範例均使用內建的 APP 範本（`app-outbound.yaml` 和 `app-inbound.yaml`）。
 
-### 情境一：建立單一 SAP 出站佇列組合
+### 情境一：建立單一 APP 出站佇列組合
 
-**使用情境：** 為特定業務主題建立新的出站訊息流程（Solace -> SAP）。
+**使用情境：** 為特定業務主題建立新的出站訊息流程（Solace -> APP）。
 
 ```yaml
 # config.yaml
@@ -539,14 +549,14 @@ semp:
   verify_ssl: false
 
 global_vars:
-  topic_prefix: "SITEA/SAP/AIF"
+  topic_prefix: "SITEA/APP/AIF"
   default_client_profile: "cp-it-user"
   default_acl_profile: "acl-it-user-{{ inputs.aem_client_username }}"
 
 templates_dir: "templates"
 
 workflows:
-  - template: "sap-outbound.new-seq"
+  - template: "app-outbound.new-seq"
     inputs:
       domain: "CENTRAL"
       system: "APPSYS"
@@ -561,11 +571,11 @@ workflows:
 2. 更新 `cp-it-user`，啟用 guaranteed send/receive
 3. 建立 ACL Profile `acl-it-user-svc-app-client`，設定允許連線、禁止發佈、禁止訂閱（已存在則跳過）
 4. 建立 Client Username `svc-app-client`，關聯至兩個 Profile（已存在則跳過）
-5. 新增發佈主題例外 `SITEA/SAP/AIF/SITEB.ORDERS.ORDER-CREATE` 至 ACL Profile（已存在則跳過）
+5. 新增發佈主題例外 `SITEA/APP/AIF/SITEB.ORDERS.ORDER-CREATE` 至 ACL Profile（已存在則跳過）
 6. 建立服務佇列 `TO-CENTRAL-APPSYS-SITEB.ORDERS.ORDER-CREATE`（已存在則跳過）
 7. 建立鏡像佇列 `MIRROR/TO-CENTRAL-APPSYS-SITEB.ORDERS.ORDER-CREATE`（已存在則跳過）
 8. 建立死信佇列 `DMQ/TO-CENTRAL-APPSYS-SITEB.ORDERS.ORDER-CREATE`（已存在則跳過）
-9. 訂閱服務佇列至 `SITEA/SAP/AIF/SITEB.ORDERS.ORDER-CREATE`（已存在則跳過）
+9. 訂閱服務佇列至 `SITEA/APP/AIF/SITEB.ORDERS.ORDER-CREATE`（已存在則跳過）
 10. 訂閱鏡像佇列至相同主題（已存在則跳過）
 
 重新執行時所有步驟均為 `SKIPPED`——不會有任何變更。
@@ -580,34 +590,34 @@ semp-workflow run -c config.yaml
 
 ---
 
-### 情境二：建立 SAP 入站流程（佇列 + RDP + REST 遞送）
+### 情境二：建立 APP 入站流程（佇列 + RDP + REST 遞送）
 
-**使用情境：** 建立入站訊息流程（SAP -> Solace -> 後端 REST 服務），將訊息遞送至 HTTP 端點。
+**使用情境：** 建立入站訊息流程（APP -> Solace -> 後端 REST 服務），將訊息遞送至 HTTP 端點。
 
 ```yaml
 workflows:
-  - template: "sap-inbound.new-seq"
+  - template: "app-inbound.new-seq"
     inputs:
       domain: "CENTRAL"
-      system: "SAP"
+      system: "APP"
       system_topic: "SITEB.ORDERS.ORDER-CREATE"
       non_service_queue_owner: "ADMIN-USER"
-      aem_client_username: "SAP-AIF-CLIENT"
-      rc_remote_host: "sap-backend.internal"
+      aem_client_username: "APP-AIF-CLIENT"
+      rc_remote_host: "app-backend.internal"
       rc_remote_port: 443
       rc_tls_enabled: true
 ```
 
 **逐步執行結果：**
 1. 建立/更新 Client Profile `cp-it-user`，啟用 guaranteed send/receive
-2. 建立 ACL Profile `acl-it-user-SAP-AIF-CLIENT`（已存在則跳過）
-3. 建立 Client Username `SAP-AIF-CLIENT`（已存在則跳過）
+2. 建立 ACL Profile `acl-it-user-APP-AIF-CLIENT`（已存在則跳過）
+3. 建立 Client Username `APP-AIF-CLIENT`（已存在則跳過）
 4. 新增訂閱主題的發佈主題例外（已存在則跳過）
-5. 建立服務佇列 `FROM-CENTRAL-SAP-SITEB.ORDERS.ORDER-CREATE`，擁有者為 RDP（已存在則跳過）
+5. 建立服務佇列 `FROM-CENTRAL-APP-SITEB.ORDERS.ORDER-CREATE`，擁有者為 RDP（已存在則跳過）
 6. 建立鏡像佇列和死信佇列（已存在則跳過）
-7. 兩個佇列訂閱 `CENTRAL/SAP/SITEB.ORDERS.ORDER-CREATE`（已存在則跳過）
-8. 建立 REST Delivery Point `RDP/FROM-CENTRAL-SAP-SITEB.ORDERS.ORDER-CREATE`（已存在則跳過）
-9. 建立 REST Consumer，指向 `sap-backend.internal:443`，啟用 TLS（已存在則跳過）
+7. 兩個佇列訂閱 `CENTRAL/APP/SITEB.ORDERS.ORDER-CREATE`（已存在則跳過）
+8. 建立 REST Delivery Point `RDP/FROM-CENTRAL-APP-SITEB.ORDERS.ORDER-CREATE`（已存在則跳過）
+9. 建立 REST Consumer，指向 `app-backend.internal:443`，啟用 TLS（已存在則跳過）
 10. 繫結服務佇列至 RDP（已存在則跳過）
 
 完整管道：訊息到達主題 -> 服務佇列（經由訂閱）-> RDP 透過佇列繫結取得訊息 -> REST Consumer 以 HTTP POST 遞送至後端。
@@ -620,7 +630,7 @@ workflows:
 
 ```yaml
 workflows:
-  - template: "sap-outbound.new-non-seq"
+  - template: "app-outbound.new-non-seq"
     inputs:
       domain: "CENTRAL"
       system: "APPSYS"
@@ -629,7 +639,7 @@ workflows:
       non_service_queue_owner: "ADMIN-USER"
       aem_client_username: "svc-app-client"
 
-  - template: "sap-outbound.new-non-seq"
+  - template: "app-outbound.new-non-seq"
     inputs:
       domain: "CENTRAL"
       system: "APPSYS"
@@ -638,14 +648,14 @@ workflows:
       non_service_queue_owner: "ADMIN-USER"
       aem_client_username: "svc-app-client"
 
-  - template: "sap-inbound.new-non-seq"
+  - template: "app-inbound.new-non-seq"
     inputs:
       domain: "CENTRAL"
-      system: "SAP"
+      system: "APP"
       system_topic: "ORDER.CONFIRM"
       non_service_queue_owner: "ADMIN-USER"
-      aem_client_username: "SAP-AIF-CLIENT"
-      rc_remote_host: "sap-backend.internal"
+      aem_client_username: "APP-AIF-CLIENT"
+      rc_remote_host: "app-backend.internal"
 ```
 
 **執行結果：** 三個工作流程依序執行。前兩個建立出站佇列組合（共用 `cp-it-user` Profile，各自的 ACL Profile）；第三個建立入站流程，包含 RDP 和 REST Consumer。前面工作流程已建立的存取控制資源會自動跳過。
@@ -662,22 +672,22 @@ semp-workflow run -c config.yaml
 
 ```yaml
 global_vars:
-  topic_prefix: "SITEA/SAP/AIF"
+  topic_prefix: "SITEA/APP/AIF"
   default_client_profile: "cp-it-user"
   default_acl_profile: "acl-it-user-{{ inputs.aem_client_username }}"
-  default_rc_remote_host: "sap-backend.internal"
+  default_rc_remote_host: "app-backend.internal"
   default_rc_remote_port: 443
   default_rc_tls_enabled: true
   default_queue_owner: "svc-app-client"
 
 workflows:
-  - template: "sap-inbound.new-non-seq"
+  - template: "app-inbound.new-non-seq"
     inputs:
       domain: "CENTRAL"
-      system: "SAP"
+      system: "APP"
       system_topic: "SITEB.ORDERS.ORDER-DETAIL"
       non_service_queue_owner: "ADMIN-USER"
-      aem_client_username: "SAP-AIF-CLIENT"
+      aem_client_username: "APP-AIF-CLIENT"
       # 選填覆蓋項引用 global_vars：
       #client_profile_name: "{{ global_vars.default_client_profile }}"
       #acl_profile_name: "{{ global_vars.default_acl_profile }}"
@@ -697,7 +707,7 @@ workflows:
 ```yaml
 workflows:
   # 刪除出站流程
-  - template: "sap-outbound.delete"
+  - template: "app-outbound.delete"
     inputs:
       domain: "CENTRAL"
       system: "APPSYS"
@@ -705,12 +715,12 @@ workflows:
       aem_client_username: "svc-app-client"
 
   # 刪除入站流程
-  - template: "sap-inbound.delete"
+  - template: "app-inbound.delete"
     inputs:
       domain: "CENTRAL"
-      system: "SAP"
+      system: "APP"
       system_topic: "SITEB.ORDERS.ORDER-DETAIL"
-      aem_client_username: "SAP-AIF-CLIENT"
+      aem_client_username: "APP-AIF-CLIENT"
 ```
 
 **執行結果：**
@@ -735,7 +745,7 @@ workflows:
 ```yaml
 workflows:
   # 循序：max_redelivery = 0（永遠保留，不轉移至 DMQ）
-  - template: "sap-outbound.new-seq"
+  - template: "app-outbound.new-seq"
     inputs:
       domain: "CENTRAL"
       system: "APPSYS"
@@ -745,7 +755,7 @@ workflows:
       aem_client_username: "svc-app-client"
 
   # 並發：max_redelivery = 5（重試 5 次後轉移至 DMQ）
-  - template: "sap-outbound.new-non-seq"
+  - template: "app-outbound.new-non-seq"
     inputs:
       domain: "CENTRAL"
       system: "APPSYS"
@@ -764,12 +774,12 @@ workflows:
 ### 問題：找不到範本（Template not found）
 
 ```
-TemplateError: Template 'sap-outbound.new-seq' not found.
+TemplateError: Template 'app-outbound.new-seq' not found.
 ```
 
 **原因與解決方式：**
 - 確認 `config.yaml` 中的 `templates_dir` 路徑正確（相對於 config.yaml 所在目錄）
-- 確認範本目錄中確實存在 `sap-outbound.yaml`
+- 確認範本目錄中確實存在 `app-outbound.yaml`
 - 未設定 `templates_dir` / `--templates-dir` 時，工具會使用內嵌範本；執行 `semp-workflow init` 可將內建範本匯出以供自訂
 
 ---

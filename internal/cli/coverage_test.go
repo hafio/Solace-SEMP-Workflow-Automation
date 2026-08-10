@@ -11,7 +11,7 @@ import (
 
 // validConfig is the minimal config body reused across the offline CLI tests;
 // it loads cleanly so execution reaches the templates-dir override branch.
-const validConfig = "semp:\n  host: h\n  username: u\n  password: p\n  msg_vpn: v\nworkflows:\n  - template: sap-inbound.new-seq\n"
+const validConfig = "semp:\n  host: h\n  username: u\n  password: p\n  msg_vpn: v\nworkflows:\n  - template: app-inbound.new-seq\n"
 
 // TestRunTemplatesDirNotFound drives the run command's --templates-dir override
 // (disabling the bundled fallback) and the NewEngine error branch: the config
@@ -64,8 +64,8 @@ func TestInitMkdirAllFailure(t *testing.T) {
 // bypassed and os.WriteFile fails writing over a directory → exit 2.
 func TestInitWriteFailure(t *testing.T) {
 	dir := t.TempDir()
-	// "sap-inbound.yaml" sorts first among the bundled templates.
-	collide := filepath.Join(dir, "sap-inbound.yaml")
+	// "app-inbound.yaml" sorts first among the bundled templates.
+	collide := filepath.Join(dir, "app-inbound.yaml")
 	require.NoError(t, os.MkdirAll(collide, 0o755))
 	code, _, errOut := runCLI(t, "init", "-o", dir, "--force")
 	assert.Equal(t, 2, code)

@@ -16,7 +16,7 @@ semp:
  
 global_vars:
   # Topic hierarchy
-  topic_prefix: "SITEA/SAP/AIF"
+  topic_prefix: "SITEA/APP/AIF"
 
   # Client Access Control
   default_client_profile: "cp-it-user"
@@ -45,7 +45,7 @@ global_vars:
   # RDP / REST consumer defaults
   default_rdp_name: "RDP/{{ inputs.domain }}-{{ inputs.system }}-{{ inputs.system_topic }}"
   default_rdp_client_profile: "default"
-  default_rc_name: "RC-SAP-REST"
+  default_rc_name: "RC-APP-REST"
   default_rc_remote_host: ""
   default_rc_remote_port: 80
   default_rc_tls_enabled: true
@@ -62,7 +62,7 @@ workflows:
   # ---------------------------------------------------------------------------
   # Outbound - Sequential delivery
   # ---------------------------------------------------------------------------
-  # - template: "sap-outbound.new-seq"
+  # - template: "app-outbound.new-seq"
   #   inputs:
   #     domain: "CENTRAL"
   #     system: "APPSYS"
@@ -107,7 +107,7 @@ workflows:
   # ---------------------------------------------------------------------------
   # Outbound - Non-sequential (concurrent) delivery
   # ---------------------------------------------------------------------------
-  # - template: "sap-outbound.new-non-seq"
+  # - template: "app-outbound.new-non-seq"
   #   inputs:
   #     domain: "CENTRAL"
   #     system: "APPSYS"
@@ -116,7 +116,7 @@ workflows:
   #     non_service_queue_owner: "queue-owner-03"
   #     aem_client_username: "svc-app-client"
  
-  - template: "sap-outbound.new-non-seq"
+  - template: "app-outbound.new-non-seq"
     inputs:
       domain: "CENTRAL"
       system: "APPSYS"
@@ -128,14 +128,14 @@ workflows:
       #client_profile_name: "{{ global_vars.default_client_profile }}"
       #acl_profile_name: "{{ global_vars.default_acl_profile }}"
 
-  # - template: "sap-outbound.delete" # (this is a delete!!!!!!!!)
+  # - template: "app-outbound.delete" # (this is a delete!!!!!!!!)
   #   inputs:
   #     domain: "CENTRAL"
   #     system: "APPSYS"
   #     system_topic: "SITEA.ORDERS.ORDER-CREATE"
   #     aem_client_username: "app-client-01"
     
-  # - template: "sap-outbound.new-non-seq"
+  # - template: "app-outbound.new-non-seq"
   #   inputs:
   #     domain: "CENTRAL"
   #     system: "APPSYS"
@@ -144,7 +144,7 @@ workflows:
   #     non_service_queue_owner: ""
   #     aem_client_username: ""
 
-  # - template: "sap-outbound.new-non-seq"
+  # - template: "app-outbound.new-non-seq"
   #   inputs:
   #     domain: "CENTRAL"
   #     system: "APPSYS"
@@ -152,7 +152,7 @@ workflows:
   #     service_queue_owner: ""
   #     non_service_queue_owner: ""
   #     aem_client_username: ""
-  # - template: "sap-outbound.new-non-seq"
+  # - template: "app-outbound.new-non-seq"
   #   inputs:
   #     domain: "CENTRAL"
   #     system: "APPSYS"
@@ -160,7 +160,7 @@ workflows:
   #     service_queue_owner: ""
   #     non_service_queue_owner: ""
   #     aem_client_username: ""
-  # - template: "sap-outbound.new-non-seq"
+  # - template: "app-outbound.new-non-seq"
   #   inputs:
   #     domain: "CENTRAL"
   #     system: "APPSYS"
@@ -206,7 +206,7 @@ workflows:
   # ---------------------------------------------------------------------------
   # Outbound - Delete
   # ---------------------------------------------------------------------------
-  # - template: "sap-outbound.delete"
+  # - template: "app-outbound.delete"
   #   inputs:
   #     domain: "CENTRAL"
   #     system: "APPSYS"
@@ -220,7 +220,7 @@ workflows:
   # ---------------------------------------------------------------------------
   # Inbound - Sequential delivery (topic: domain/system/topic)
   # ---------------------------------------------------------------------------
-  # - template: "sap-inbound.new-seq"
+  # - template: "app-inbound.new-seq"
   #   inputs:
   #     domain: "CENTRAL"
   #     system: "APPSYS"
@@ -231,7 +231,7 @@ workflows:
       #client_profile_name: "{{ global_vars.default_client_profile }}"
       #acl_profile_name: "{{ global_vars.default_acl_profile }}"
 
-  # - template: "sap-inbound.delete" # (this is a delete!!!!!!!!)
+  # - template: "app-inbound.delete" # (this is a delete!!!!!!!!)
   #   inputs:
   #     domain: "CENTRAL"
   #     system: "APPSYS"
@@ -292,7 +292,7 @@ workflows:
   # ---------------------------------------------------------------------------
   # Inbound - Non-sequential delivery (topic: topic_prefix/system_topic)
   # ---------------------------------------------------------------------------
-  # - template: "sap-inbound.new-non-seq"
+  # - template: "app-inbound.new-non-seq"
   #   inputs:
   #     domain: "CENTRAL"
   #     system: "APPSYS"
@@ -303,7 +303,7 @@ workflows:
       #client_profile_name: "{{ global_vars.default_client_profile }}"
       #acl_profile_name: "{{ global_vars.default_acl_profile }}"
 
-  # - template: "sap-inbound.delete" # (this is a delete!!!!!!!!)
+  # - template: "app-inbound.delete" # (this is a delete!!!!!!!!)
   #   inputs:
   #     domain: "CENTRAL"
   #     system: "APPSYS"
@@ -365,42 +365,42 @@ workflows:
   # ---------------------------------------------------------------------------
   # Inbound - Delete
   # ---------------------------------------------------------------------------
-  # - template: "sap-inbound.delete"
+  # - template: "app-inbound.delete"
   #   inputs:
   #     domain: "CENTRAL"
   #     system: "APPSYS"
   #     system_topic: "PLM.MASTERDATA.RECORD.UPDATE"
   #     aem_client_username: ""
 
-  # - template: "sap-outbound.delete"
+  # - template: "app-outbound.delete"
   #   inputs:
   #     domain: "CENTRAL"
   #     system: "APPSYS"
   #     system_topic: "SITEA.ORDERS.ORDER-UPDATE"
   #     aem_client_username: ""
 
-  # - template: "sap-outbound.delete"
+  # - template: "app-outbound.delete"
   #   inputs:
   #     domain: "CENTRAL"
   #     system: "APPSYS"
   #     system_topic: "SITEA.ORDERS.ORDER-CREATE"
   #     aem_client_username: ""
 
-  # - template: "sap-outbound.delete"
+  # - template: "app-outbound.delete"
   #   inputs:
   #     domain: "CENTRAL"
   #     system: "APPSYS"
   #     system_topic: "SITEA.ORDERS.DAILY.SUMMARY"
   #     aem_client_username: ""
 
-  # - template: "sap-outbound.delete"
+  # - template: "app-outbound.delete"
   #   inputs:
   #     domain: "CENTRAL"
   #     system: "APPSYS"
   #     system_topic: "SITEA.ORDERS.STATUS.REPORT"
   #     aem_client_username: ""
 
-  # - template: "sap-outbound.delete"
+  # - template: "app-outbound.delete"
   #   inputs:
   #     domain: "CENTRAL"
   #     system: "APPSYS"

@@ -21,7 +21,7 @@ func (subscriptionAdd) Description() string {
 func (subscriptionAdd) Params() []ParamSpec {
 	return []ParamSpec{
 		{Name: "queueName", Type: "string", Required: true, Description: "Name of the queue to subscribe"},
-		{Name: "subscriptionTopic", Type: "string", Required: true, Description: "Topic string to subscribe to (wildcards supported, e.g. SITEA/SAP/>)"},
+		{Name: "subscriptionTopic", Type: "string", Required: true, Description: "Topic string to subscribe to (wildcards supported, e.g. SITEA/APP/>)"},
 	}
 }
 

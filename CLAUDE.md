@@ -13,9 +13,10 @@ Go commands from the repo root.
 
 ## Build & test (run from the repo root)
 
-- Build: `./scripts/dev.sh build` (`.\scripts\dev.ps1 build` on Windows) -> `dist/semp-workflow`
+- Build: `./scripts/dev.sh build` (`.\scripts\dev.ps1 build` on Windows) -> `dist/semp-workflow-<os>-<arch>[.exe]` (host os/arch unless `TARGET_OS`/`TARGET_ARCH` are set)
 - Tests: `go test ./...` (or `./scripts/dev.sh test`)
 - Coverage: `./scripts/dev.sh cov` -> printed total + `coverage.html`
+- Security scan: `./scripts/dev.sh scan` -> `go tool govulncheck ./...` (govulncheck pinned as a go.mod `tool` directive; the `toolchain` directive pins Go, so it resolves through the module -- never `go run pkg@version`). Fatal on a fixable CVE.
 - Integration tests (need a live broker): `go test -tags integration ./...` with `SEMP_HOST/SEMP_USERNAME/SEMP_PASSWORD/SEMP_MSG_VPN` set
 - Validate examples: `semp-workflow validate -c examples/config.yaml -t examples/templates`
 - Version is stamped at build time via `-ldflags "-X main.version=..."` -- no reinstall step.

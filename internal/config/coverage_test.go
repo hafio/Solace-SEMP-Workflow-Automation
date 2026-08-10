@@ -102,10 +102,10 @@ func TestLoadConfigEdgeDefaults(t *testing.T) {
 // real *.yaml files off disk via os.DirFS).
 func TestLoadTemplatesDirSuccess(t *testing.T) {
 	dir := t.TempDir()
-	require.NoError(t, os.WriteFile(filepath.Join(dir, "sap-inbound.yaml"), []byte(templateYAML), 0o644))
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "app-inbound.yaml"), []byte(templateYAML), 0o644))
 	reg, err := LoadTemplatesDir(dir)
 	require.NoError(t, err)
-	_, ok := reg["sap-inbound.TestFlow"]
+	_, ok := reg["app-inbound.TestFlow"]
 	assert.True(t, ok)
 }
 

@@ -105,8 +105,9 @@ unset the tests call `t.Skip` rather than fail — so a plain
 ### Aggregate dev-script tasks
 
 ```bash
-./scripts/dev.sh all              # build vet test cov graphify
-./scripts/dev.sh full             # all + vuln (govulncheck)
+./scripts/dev.sh all              # build vet test               (CI runs `all scan`)
+./scripts/dev.sh scan             # govulncheck (image scan N/A -- no Dockerfile)
+./scripts/dev.sh full             # all + cov + image + scan + graphify
 ```
 
 ---
@@ -386,7 +387,7 @@ placeholder).
 
 | Test | Verifies |
 |---|---|
-| `TestFSContainsBundledTemplates` | `FS()` exposes the embedded bundled templates — `sap-inbound.yaml` reads back non-empty |
+| `TestFSContainsBundledTemplates` | `FS()` exposes the embedded bundled templates — `app-inbound.yaml` reads back non-empty |
 
 ---
 
